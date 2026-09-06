@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import NetworkCanvas from '../NetworkCanvas';
 import './LeadsPage.css';
 
 // Import all 11 real team member photographs
@@ -109,6 +110,7 @@ export default function LeadsPage({ onNavigate }) {
           01. OPENING — "THE PEOPLE BEHIND STC"
           ========================================================================= */}
       <section className="leads-hero" id="opening">
+        <NetworkCanvas />
         <div className="container leads-hero__inner">
           <div className="leads-hero__meta-top">
             <span className="leads-eyebrow label-mono">THE PEOPLE BEHIND STC</span>

@@ -10,7 +10,7 @@ export default function ThemeToggle({ theme = 'light', onToggle }) {
     if (onToggle) {
       onToggle();
     }
-    setTimeout(() => setAnimating(false), 550);
+    setTimeout(() => setAnimating(false), 300);
   };
 
   return (
@@ -20,8 +20,8 @@ export default function ThemeToggle({ theme = 'light', onToggle }) {
         animating ? 'theme-toggle--animating' : ''
       }`}
       onClick={handleClick}
-      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      title={isDark ? 'Activate Light Mode' : 'Activate Dark Mode'}
+      aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+      title={isDark ? 'Activate Light Theme' : 'Activate Dark Theme'}
     >
       <div className="theme-toggle__track">
         {/* Animated Sun / Moon SVG */}

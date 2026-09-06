@@ -59,9 +59,10 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
             </li>
             <li>
               <a
-                href={currentRoute === 'home' ? '#events' : '#/'}
-                className="navbar__link"
-                onClick={(e) => handleLinkClick(e, 'home', 'events')}
+                href="#/events"
+                className={`navbar__link ${currentRoute === 'events' ? 'navbar__link--active' : ''}`}
+                aria-current={currentRoute === 'events' ? 'page' : undefined}
+                onClick={(e) => handleLinkClick(e, 'events')}
               >
                 Events
               </a>
@@ -151,9 +152,9 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
             </li>
             <li>
               <a
-                href={currentRoute === 'home' ? '#events' : '#/'}
-                className="navbar__mobile-link"
-                onClick={(e) => handleLinkClick(e, 'home', 'events')}
+                href="#/events"
+                className={`navbar__mobile-link ${currentRoute === 'events' ? 'navbar__mobile-link--active' : ''}`}
+                onClick={(e) => handleLinkClick(e, 'events')}
               >
                 Events
               </a>

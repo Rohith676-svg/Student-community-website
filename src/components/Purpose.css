@@ -41,11 +41,13 @@
   align-items: center;
   gap: var(--space-md);
   padding: 0.45rem 0.95rem;
-  background-color: rgba(244, 241, 234, 0.88);
+  background-color: var(--surface);
   border: 1.5px solid var(--border);
   border-radius: var(--radius-btn);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: background-color var(--transition-base), border-color var(--transition-base);
 }
 
 .purpose__step {

@@ -18,7 +18,7 @@ export default function Hero() {
         </h1>
 
         <p className="hero__description reveal reveal-delay-2">
-          A student-led technology community bringing curious minds together to learn, build, connect and grow.
+          A student-led technology community bringing curious minds together to learn, build, connect and grow. Organised by department of CSE.
         </p>
 
         <div className="hero__actions reveal reveal-delay-3">

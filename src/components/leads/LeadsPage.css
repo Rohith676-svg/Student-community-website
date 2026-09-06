@@ -40,9 +40,13 @@
   padding-bottom: 3.5rem;
   border-bottom: 1px solid var(--border);
   position: relative;
+  overflow: hidden;
+  background-color: var(--bg);
 }
 
 .leads-hero__inner {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -993,8 +997,9 @@
    ========================================================================= */
 .leads-join-cta {
   padding: 9rem 0;
-  background-color: var(--accent-dark);
-  color: var(--bg);
+  background-color: #0F1011;
+  color: #EDE8DF;
+  border-top: 1px solid var(--border);
   position: relative;
 }
 
@@ -1015,7 +1020,7 @@
   font-size: clamp(3rem, 6.5vw, 5.5rem);
   line-height: 0.98;
   font-weight: 700;
-  color: #F4F1EA;
+  color: #EDE8DF;
   letter-spacing: -0.03em;
   text-transform: uppercase;
   margin-bottom: 1.5rem;
@@ -1042,10 +1047,10 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  background-color: #F4F1EA;
+  background-color: #EDE8DF;
   color: #0F1011;
   border-radius: var(--radius-btn);
-  border: 1.5px solid #F4F1EA;
+  border: 1.5px solid #EDE8DF;
   transition: all var(--transition-fast);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
@@ -1056,9 +1061,9 @@
 }
 
 .leads-cta-btn:hover {
-  background-color: transparent;
-  color: #F4F1EA;
-  border-color: #F4F1EA;
+  background-color: #FFFFFF;
+  color: #0F1011;
+  border-color: #FFFFFF;
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }

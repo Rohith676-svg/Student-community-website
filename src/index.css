@@ -4,12 +4,12 @@
    ========================================================================== */
 
 :root {
-  /* Color System — Editorial Warm Paper & Rich Charcoal (Light Mode) */
+  /* Color System — Editorial Warm Paper & Rich Charcoal (Light Mode Default) */
   --bg: #F4F1EA;
   --surface: #EAE6DD;
-  --surface-alt: #E2DDD3;
+  --surface-alt: #DFDAD0;
   --text: #171717;
-  --muted: #65615B;
+  --muted: #6F6B64;
   --border: #D5D0C6;
   --border-light: #E4DFD5;
 
@@ -19,10 +19,29 @@
   --accent-graphite: #3A3E42;
   --accent-muted: #52575C;
 
+  /* Button Tokens */
+  --btn-primary-bg: #222528;
+  --btn-primary-text: #F4F1EA;
+  --btn-primary-border: #222528;
+  --btn-primary-hover-bg: #0F1011;
+  --btn-primary-hover-text: #F4F1EA;
+  --btn-primary-hover-border: #0F1011;
+
+  --btn-secondary-bg: transparent;
+  --btn-secondary-text: #171717;
+  --btn-secondary-border: #D5D0C6;
+  --btn-secondary-hover-bg: #EAE6DD;
+  --btn-secondary-hover-text: #171717;
+  --btn-secondary-hover-border: #222528;
+
   /* UI & Navbar */
   --navbar-scrolled-bg: rgba(244, 241, 234, 0.94);
-  --theme-toggle-bg: var(--surface);
-  --theme-toggle-border: var(--border);
+  --theme-toggle-bg: #EAE6DD;
+  --theme-toggle-border: #D5D0C6;
+  --theme-toggle-color: #171717;
+  --theme-toggle-hover-bg: #DFDAD0;
+  --theme-toggle-hover-border: #222528;
+  --theme-toggle-hover-color: #171717;
 
   /* Typography */
   --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -56,26 +75,46 @@
 }
 
 /* ==========================================================================
-   Editorial Dark Mode (Deep Obsidian Charcoal & Warm Off-White)
+   Editorial Dark Mode (Layered Charcoal, Visible Graphite & Warm Off-White)
    ========================================================================== */
 [data-theme="dark"] {
-  --bg: #0D0F12;
-  --surface: #15181C;
-  --surface-alt: #1C2025;
-  --text: #F2EFE9;
-  --muted: #9BA1A7;
-  --border: #2A2F36;
-  --border-light: #20242A;
+  --bg: #0F1011;
+  --surface: #171A1C;
+  --surface-alt: #222528;
+  --text: #EDE8DF;
+  --muted: #8E8A82;
+  --border: #2A2E33;
+  --border-light: #1F2327;
 
-  /* Inverted Accents for Dark Mode Contrast */
-  --accent: #F2EFE9;
-  --accent-dark: #070809;
-  --accent-graphite: #D0D4D8;
-  --accent-muted: #868D94;
+  /* Restrained Charcoal & Graphite Accents */
+  --accent: #EDE8DF;
+  --accent-dark: #171A1C;
+  --accent-graphite: #C8C5BD;
+  --accent-muted: #7E8388;
 
-  --navbar-scrolled-bg: rgba(13, 15, 18, 0.94);
-  --theme-toggle-bg: #1C2025;
-  --theme-toggle-border: #32373F;
+  /* Button Tokens - Guaranteed contrast, never turns black on black */
+  --btn-primary-bg: #EDE8DF;
+  --btn-primary-text: #0F1011;
+  --btn-primary-border: #EDE8DF;
+  --btn-primary-hover-bg: #FFFFFF;
+  --btn-primary-hover-text: #0F1011;
+  --btn-primary-hover-border: #FFFFFF;
+
+  --btn-secondary-bg: transparent;
+  --btn-secondary-text: #EDE8DF;
+  --btn-secondary-border: #3A3E42;
+  --btn-secondary-hover-bg: #171A1C;
+  --btn-secondary-hover-text: #FFFFFF;
+  --btn-secondary-hover-border: #EDE8DF;
+
+  /* UI & Navbar */
+  --navbar-scrolled-bg: rgba(15, 16, 17, 0.94);
+  --theme-toggle-bg: #222528;
+  --theme-toggle-border: #3A3E42;
+  --theme-toggle-color: #EDE8DF;
+  --theme-toggle-hover-bg: #2F3338;
+  --theme-toggle-hover-border: #52575C;
+  --theme-toggle-hover-color: #FFFFFF;
 }
 
 /* Reset & Base */
@@ -107,8 +146,8 @@ body {
   font-weight: 400;
   overflow-x: clip;
   position: relative;
-  transition: background-color 350ms cubic-bezier(0.16, 1, 0.3, 1),
-              color 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              color 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Accessible focus outlines */
@@ -172,7 +211,7 @@ button {
   cursor: pointer;
 }
 
-/* Button & CTA Components - Aesthetic Charcoal */
+/* Button & CTA Components - Explicit Theme-Adaptive Charcoal Contrast */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -194,16 +233,17 @@ button {
 }
 
 .btn-primary {
-  background-color: var(--accent);
-  color: var(--bg);
-  border: 1.5px solid var(--accent);
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: 1.5px solid var(--btn-primary-border);
   border-radius: var(--radius-btn);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .btn-primary:hover {
-  background-color: var(--accent-dark);
-  border-color: var(--accent-dark);
+  background-color: var(--btn-primary-hover-bg);
+  color: var(--btn-primary-hover-text);
+  border-color: var(--btn-primary-hover-border);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
@@ -213,15 +253,16 @@ button {
 }
 
 .btn-secondary {
-  background-color: transparent;
-  color: var(--text);
-  border: 1.5px solid var(--border);
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: 1.5px solid var(--btn-secondary-border);
   border-radius: var(--radius-btn);
 }
 
 .btn-secondary:hover {
-  background-color: var(--surface);
-  border-color: var(--accent);
+  background-color: var(--btn-secondary-hover-bg);
+  color: var(--btn-secondary-hover-text);
+  border-color: var(--btn-secondary-hover-border);
   transform: translateY(-1px);
 }
 

@@ -237,6 +237,8 @@ export default function Purpose() {
         }
       }
 
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
       // Connection threshold distance expands with community growth
       const baseDist = isMobile ? 70 : 105;
       const activeDist = baseDist + currentProgress * (isMobile ? 55 : 90);
@@ -259,28 +261,37 @@ export default function Purpose() {
           }
 
           if (allowConnection) {
-            const alpha = (1 - dist / activeDist) * (0.14 + currentProgress * 0.26);
+            // Controlled opacity: subtle in individuals stage, progressively denser & more visible as community forms
+            const progressAlpha = isDark
+              ? (0.22 + currentProgress * 0.36)
+              : (0.20 + currentProgress * 0.34);
+            const alpha = (1 - dist / activeDist) * progressAlpha;
+
             ctx.beginPath();
             ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
 
-            // Refined charcoal line tones
+            // Refined lines: subtle #52575C in light theme, graphite in dark theme
             if (nodes[i].isAccent || nodes[j].isAccent) {
-              ctx.strokeStyle = `rgba(26, 28, 30, ${alpha * 1.6})`;
+              ctx.strokeStyle = isDark
+                ? `rgba(237, 232, 223, ${alpha * 1.45})`
+                : `rgba(34, 37, 40, ${alpha * 1.45})`;
             } else {
-              ctx.strokeStyle = `rgba(100, 97, 92, ${alpha})`;
+              ctx.strokeStyle = isDark
+                ? `rgba(148, 154, 159, ${alpha})`
+                : `rgba(82, 87, 92, ${alpha})`;
             }
-            // More substantial lines as connection forms
-            ctx.lineWidth = currentProgress > 0.5 ? 1.15 : 0.8;
+            // More substantial lines as connection forms across stages
+            ctx.lineWidth = currentProgress > 0.5 ? 1.2 : 0.9;
             ctx.stroke();
           }
         }
       }
 
-      // Dynamic dot scaling: dots grow noticeably as the network connects!
-      const connectScale = 1 + currentProgress * 0.8; // Grows up to 1.8x original size
+      // Dynamic dot scaling: dots grow noticeably as the network connects into community!
+      const connectScale = 1 + currentProgress * 0.45;
 
-      // Render nodes & technical labels
+      // Render nodes & technical labels with clear contrast in both themes
       for (let i = 0; i < nodes.length; i++) {
         const n = nodes[i];
         const activeRadius = n.baseRadius * connectScale;
@@ -288,25 +299,31 @@ export default function Purpose() {
         ctx.beginPath();
         ctx.arc(n.x, n.y, activeRadius, 0, Math.PI * 2);
         if (n.isAccent) {
-          ctx.fillStyle = '#171717';
+          ctx.fillStyle = isDark ? '#FFFFFF' : '#0F1011';
+        } else if (n.label) {
+          ctx.fillStyle = isDark ? '#EDE8DF' : '#222528';
         } else {
-          ctx.fillStyle = 'rgba(38, 41, 44, 0.78)';
+          ctx.fillStyle = isDark ? '#949A9F' : '#3A3E42';
         }
         ctx.fill();
 
-        // Prominent graphite halo on accent dots
+        // Graphite halo on accent dots for editorial depth
         if (n.isAccent) {
           ctx.beginPath();
           ctx.arc(n.x, n.y, activeRadius + 5.5, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(25, 27, 30, 0.25)';
-          ctx.lineWidth = 1.2;
+          ctx.strokeStyle = isDark
+            ? 'rgba(237, 232, 223, 0.35)'
+            : 'rgba(34, 37, 40, 0.3)';
+          ctx.lineWidth = 1.1;
           ctx.stroke();
         }
 
-        // Small monospace label
+        // Technical interest label
         if (n.label) {
           ctx.font = '600 10px "JetBrains Mono", monospace';
-          ctx.fillStyle = n.isAccent ? '#171717' : 'rgba(40, 42, 45, 0.65)';
+          ctx.fillStyle = isDark
+            ? (n.isAccent ? '#FFFFFF' : '#EDE8DF')
+            : (n.isAccent ? '#0F1011' : '#222528');
           ctx.fillText(n.label, n.x + activeRadius + 6, n.y + 3);
         }
       }

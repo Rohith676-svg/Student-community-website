@@ -6,14 +6,15 @@ import FacultyPreview from './components/FacultyPreview';
 import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 import LeadsPage from './components/leads/LeadsPage';
+import EventsPage from './components/events/EventsPage';
 
 export default function App() {
-  // Theme state: reads persisted theme or system preference
+  // Theme state: defaults to 'light' unless user explicitly chose otherwise in localStorage
   const getInitialTheme = () => {
     try {
       const saved = localStorage.getItem('stc-theme');
       if (saved === 'dark' || saved === 'light') return saved;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      return 'light'; // Light theme is strictly the default, ignoring OS preference
     } catch {
       return 'light';
     }
@@ -37,6 +38,9 @@ export default function App() {
     if (hash.startsWith('#/leads') || hash === '#leads') {
       return 'leads';
     }
+    if (hash.startsWith('#/events') || hash === '#events') {
+      return 'events';
+    }
     return 'home';
   };
 
@@ -57,6 +61,9 @@ export default function App() {
       setCurrentRoute(targetRoute);
       if (targetRoute === 'leads') {
         window.location.hash = '#/leads';
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      } else if (targetRoute === 'events') {
+        window.location.hash = '#/events';
         window.scrollTo({ top: 0, behavior: 'instant' });
       } else {
         if (sectionId) {
@@ -161,6 +168,10 @@ export default function App() {
         {currentRoute === 'leads' ? (
           <main id="main-content">
             <LeadsPage onNavigate={handleNavigate} />
+          </main>
+        ) : currentRoute === 'events' ? (
+          <main id="main-content">
+            <EventsPage onNavigate={handleNavigate} />
           </main>
         ) : (
           <main id="main-content">
