@@ -50,11 +50,12 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
             </li>
             <li>
               <a
-                href={currentRoute === 'home' ? '#purpose' : '#/'}
-                className="navbar__link"
-                onClick={(e) => handleLinkClick(e, 'home', 'purpose')}
+                href="#/leads"
+                className={`navbar__link ${currentRoute === 'leads' ? 'navbar__link--active' : ''}`}
+                aria-current={currentRoute === 'leads' ? 'page' : undefined}
+                onClick={(e) => handleLinkClick(e, 'leads')}
               >
-                About
+                Leads
               </a>
             </li>
             <li>
@@ -74,16 +75,6 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
                 onClick={(e) => handleLinkClick(e, 'home', 'roadmaps')}
               >
                 Roadmaps
-              </a>
-            </li>
-            <li>
-              <a
-                href="#/leads"
-                className={`navbar__link ${currentRoute === 'leads' ? 'navbar__link--active' : ''}`}
-                aria-current={currentRoute === 'leads' ? 'page' : undefined}
-                onClick={(e) => handleLinkClick(e, 'leads')}
-              >
-                Leads
               </a>
             </li>
           </ul>
@@ -143,11 +134,11 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
             </li>
             <li>
               <a
-                href={currentRoute === 'home' ? '#purpose' : '#/'}
-                className="navbar__mobile-link"
-                onClick={(e) => handleLinkClick(e, 'home', 'purpose')}
+                href="#/leads"
+                className={`navbar__mobile-link ${currentRoute === 'leads' ? 'navbar__mobile-link--active' : ''}`}
+                onClick={(e) => handleLinkClick(e, 'leads')}
               >
-                About
+                Leads
               </a>
             </li>
             <li>
@@ -166,15 +157,6 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
                 onClick={(e) => handleLinkClick(e, 'home', 'roadmaps')}
               >
                 Roadmaps
-              </a>
-            </li>
-            <li>
-              <a
-                href="#/leads"
-                className={`navbar__mobile-link ${currentRoute === 'leads' ? 'navbar__link--active' : ''}`}
-                onClick={(e) => handleLinkClick(e, 'leads')}
-              >
-                Leads
               </a>
             </li>
           </ul>
