@@ -65,7 +65,7 @@
 
   /* Layout */
   --container-max: 1240px;
-  --container-px: clamp(1.25rem, 5vw, 3.5rem);
+  --container-px: clamp(1rem, 4.5vw, 3.5rem);
   --header-height: 72px;
 
   /* Transitions */
@@ -131,6 +131,7 @@ html {
   background-color: var(--bg);
   color: var(--text);
   scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-height) + 1.25rem); /* Ensures fixed navbar clears all anchor jumps */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -217,6 +218,7 @@ button {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 44px; /* Accessible touch target size */
   padding: 0.8rem 1.6rem;
   font-family: var(--font-body);
   font-size: 0.875rem;
@@ -270,30 +272,38 @@ button {
   transform: translateY(0);
 }
 
-/* Section & Element Scroll Reveal Animations */
-.reveal {
+/* ==========================================================================
+   Cohesive Global Motion Language: Unified Scroll Reveals
+   ========================================================================== */
+.reveal,
+.leads-reveal,
+.events-reveal,
+.roadmaps-reveal {
   opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 750ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 750ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(22px);
+  transition: opacity 650ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 650ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
-.reveal.is-revealed {
+.reveal.is-revealed,
+.leads-reveal.is-visible,
+.events-reveal.is-revealed,
+.roadmaps-reveal.is-revealed {
   opacity: 1;
   transform: translateY(0);
 }
 
 .reveal-delay-1 {
-  transition-delay: 140ms;
+  transition-delay: 120ms;
 }
 
 .reveal-delay-2 {
-  transition-delay: 260ms;
+  transition-delay: 240ms;
 }
 
 .reveal-delay-3 {
-  transition-delay: 380ms;
+  transition-delay: 360ms;
 }
 
 /* ==========================================================================
@@ -342,7 +352,10 @@ button {
     scroll-behavior: auto !important;
   }
 
-  .reveal {
+  .reveal,
+  .leads-reveal,
+  .events-reveal,
+  .roadmaps-reveal {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;

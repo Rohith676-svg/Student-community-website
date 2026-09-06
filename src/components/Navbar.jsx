@@ -16,6 +16,29 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
+  // Close mobile drawer on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && mobileMenuOpen) {
+        closeMobileMenu();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileMenuOpen]);
+
+  // Lock background scroll when mobile drawer is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   const handleLinkClick = (e, targetRoute, sectionId) => {
     e.preventDefault();
     closeMobileMenu();
@@ -70,9 +93,10 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
             </li>
             <li>
               <a
-                href={currentRoute === 'home' ? '#roadmaps' : '#/'}
-                className="navbar__link"
-                onClick={(e) => handleLinkClick(e, 'home', 'roadmaps')}
+                href="#/roadmaps"
+                className={`navbar__link ${currentRoute === 'roadmaps' ? 'navbar__link--active' : ''}`}
+                aria-current={currentRoute === 'roadmaps' ? 'page' : undefined}
+                onClick={(e) => handleLinkClick(e, 'roadmaps')}
               >
                 Roadmaps
               </a>
@@ -152,9 +176,9 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
             </li>
             <li>
               <a
-                href={currentRoute === 'home' ? '#roadmaps' : '#/'}
-                className="navbar__mobile-link"
-                onClick={(e) => handleLinkClick(e, 'home', 'roadmaps')}
+                href="#/roadmaps"
+                className={`navbar__mobile-link ${currentRoute === 'roadmaps' ? 'navbar__mobile-link--active' : ''}`}
+                onClick={(e) => handleLinkClick(e, 'roadmaps')}
               >
                 Roadmaps
               </a>

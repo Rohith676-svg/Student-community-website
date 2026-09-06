@@ -5,6 +5,7 @@ import {
   HACKATHON_FILTERS,
   MODE_FILTERS,
 } from './hackathonsData';
+import { initScrollReveal } from '../../utils/revealObserver';
 import './EventsPage.css';
 
 const PROGRESSION_STAGES = [
@@ -51,27 +52,10 @@ export default function EventsPage({ onNavigate }) {
   const scrollProgressRef = useRef(0);
   const [activeStageIndex, setActiveStageIndex] = useState(0);
 
-  // Scroll reveal observer for .events-reveal elements
+  // Scroll reveal observer using unified engine
   useEffect(() => {
-    const reveals = document.querySelectorAll('.events-reveal');
-    if (!('IntersectionObserver' in window)) {
-      reveals.forEach((el) => el.classList.add('is-revealed'));
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-revealed');
-          }
-        });
-      },
-      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
-    );
-
-    reveals.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    const cleanup = initScrollReveal();
+    return cleanup;
   }, [activeTheme, activeMode]);
 
   // Track scroll position in Progression story track

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import NetworkCanvas from '../NetworkCanvas';
 import './LeadsPage.css';
 
-// Import all 11 real team member photographs
+import { initScrollReveal } from '../../utils/revealObserver';
 import sumanthImg from '../../assets/sumanth.jpeg';
 import kusmithaImg from '../../assets/Kusmitha.png';
 import rohithImg from '../../assets/Rohith.png';
@@ -78,30 +78,10 @@ export default function LeadsPage({ onNavigate }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Section reveal observer
+  // Section reveal observer using unified engine
   useEffect(() => {
-    const reveals = document.querySelectorAll('.leads-reveal');
-    if (!('IntersectionObserver' in window)) {
-      reveals.forEach((el) => el.classList.add('is-visible'));
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-          }
-        });
-      },
-      {
-        threshold: 0.12,
-        rootMargin: '0px 0px -40px 0px',
-      }
-    );
-
-    reveals.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    const cleanup = initScrollReveal();
+    return cleanup;
   }, []);
 
   return (

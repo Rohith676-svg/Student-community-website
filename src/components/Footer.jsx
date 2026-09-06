@@ -142,9 +142,9 @@ export default function Footer({ onNavigate }) {
               </li>
               <li>
                 <a
-                  href="#/"
+                  href="#/roadmaps"
                   className="footer__link"
-                  onClick={(e) => handleNav(e, 'home', 'roadmaps')}
+                  onClick={(e) => handleNav(e, 'roadmaps')}
                 >
                   Roadmaps
                 </a>

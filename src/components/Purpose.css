@@ -181,7 +181,11 @@
   }
 
   .purpose__headline {
-    font-size: clamp(1.85rem, 8.5vw, 2.85rem);
+    font-size: clamp(1.65rem, 8vw, 2.85rem);
+  }
+
+  .purpose__closing-headline {
+    font-size: clamp(1.65rem, 7.5vw, 2.75rem);
   }
 
   .purpose__description {

@@ -7,6 +7,8 @@ import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 import LeadsPage from './components/leads/LeadsPage';
 import EventsPage from './components/events/EventsPage';
+import RoadmapsPage from './components/roadmaps/RoadmapsPage';
+import { initScrollReveal } from './utils/revealObserver';
 
 export default function App() {
   // Theme state: defaults to 'light' unless user explicitly chose otherwise in localStorage
@@ -35,11 +37,15 @@ export default function App() {
 
   const getRouteFromHash = () => {
     const hash = window.location.hash || '';
-    if (hash.startsWith('#/leads') || hash === '#leads') {
+    const path = window.location.pathname || '';
+    if (hash.startsWith('#/leads') || hash === '#leads' || path === '/leads') {
       return 'leads';
     }
-    if (hash.startsWith('#/events') || hash === '#events') {
+    if (hash.startsWith('#/events') || hash === '#events' || path === '/events') {
       return 'events';
+    }
+    if (hash.startsWith('#/roadmaps') || hash === '#roadmaps' || path === '/roadmaps') {
+      return 'roadmaps';
     }
     return 'home';
   };
@@ -64,6 +70,9 @@ export default function App() {
         window.scrollTo({ top: 0, behavior: 'instant' });
       } else if (targetRoute === 'events') {
         window.location.hash = '#/events';
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      } else if (targetRoute === 'roadmaps') {
+        window.location.hash = '#/roadmaps';
         window.scrollTo({ top: 0, behavior: 'instant' });
       } else {
         if (sectionId) {
@@ -121,30 +130,10 @@ export default function App() {
   };
 
   useEffect(() => {
-    // Scroll reveal observer for landing page animated section entrances
-    if (currentRoute === 'home') {
-      const revealElements = document.querySelectorAll('.reveal');
-      if (!('IntersectionObserver' in window)) {
-        revealElements.forEach((el) => el.classList.add('is-revealed'));
-        return;
-      }
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('is-revealed');
-            }
-          });
-        },
-        {
-          threshold: 0.08,
-          rootMargin: '0px 0px -40px 0px',
-        }
-      );
-
-      revealElements.forEach((el) => observer.observe(el));
-      return () => observer.disconnect();
+    // Run unified scroll reveal engine across all routes once page is entered
+    if (transitionState === 'idle') {
+      const cleanup = initScrollReveal();
+      return cleanup;
     }
   }, [currentRoute, transitionState]);
 
@@ -172,6 +161,10 @@ export default function App() {
         ) : currentRoute === 'events' ? (
           <main id="main-content">
             <EventsPage onNavigate={handleNavigate} />
+          </main>
+        ) : currentRoute === 'roadmaps' ? (
+          <main id="main-content">
+            <RoadmapsPage onNavigate={handleNavigate} />
           </main>
         ) : (
           <main id="main-content">

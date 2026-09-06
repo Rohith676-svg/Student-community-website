@@ -1143,6 +1143,11 @@
     padding-bottom: 2rem;
   }
 
+  .leads-hero__heading {
+    font-size: clamp(2rem, 10vw, 3.5rem);
+    line-height: 1.02;
+  }
+
   .leads-hero__meta-bottom {
     flex-direction: column;
     align-items: flex-start;
