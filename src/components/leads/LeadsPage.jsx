@@ -349,12 +349,12 @@ export default function LeadsPage({ onNavigate }) {
             </div>
 
             <div className="tech-pair-composition">
-              {/* Person 03: N. Teena Mohitha Chowdary */}
+              {/* Person 03: N. Teena Mohitha */}
               <div className="tech-member-card">
                 <div className="tech-member-frame">
                   <img
                     src={teenaImg}
-                    alt="N. Teena Mohitha Chowdary — Technical Lead"
+                    alt="N. Teena Mohitha — Technical Lead"
                     className="tech-member-img"
                     loading="lazy"
                   />
@@ -362,7 +362,7 @@ export default function LeadsPage({ onNavigate }) {
                 </div>
                 <div className="tech-member-info">
                   <span className="tech-member-index label-mono">03</span>
-                  <h4 className="tech-member-name">N. TEENA MOHITHA CHOWDARY</h4>
+                  <h4 className="tech-member-name">N. TEENA MOHITHA</h4>
                   <span className="tech-member-role label-mono">TECHNICAL LEAD</span>
                 </div>
               </div>
