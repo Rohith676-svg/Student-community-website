@@ -13,7 +13,7 @@ import divyaImg from '../../assets/Divya.png';
 import bhanuImg from '../../assets/Bhanu.png';
 import krishnaImg from '../../assets/Krishna.png';
 import purushothamImg from '../../assets/Purushotham.png';
-import koushalImg from '../../assets/Koushal.png';
+import faadhilImg from '../../assets/faadhil.png';
 
 // Non-technical team interactive data
 const NON_TECH_MEMBERS = [
@@ -37,11 +37,11 @@ const NON_TECH_MEMBERS = [
   },
   {
     index: '09',
-    name: 'Koushal Reddy',
+    name: 'S. Faadhil',
     role: 'Speakers Head',
     tag: 'PERSPECTIVES & SESSIONS',
-    image: koushalImg,
-    alt: 'Koushal Reddy - Speakers Head',
+    image: faadhilImg,
+    alt: 'Faadhil - Speakers Head',
     quote: 'Bringing visionary technologists, alumni, and industry mentors into STC circles.',
   },
 ];
@@ -171,9 +171,8 @@ export default function LeadsPage({ onNavigate }) {
                 <div className="leads-comm-info">
                   {/* Lead 01: Avalakunta Sumanth */}
                   <div
-                    className={`leads-comm-persona ${
-                      activeCommunityLead === 0 ? 'is-active' : 'is-exited'
-                    }`}
+                    className={`leads-comm-persona ${activeCommunityLead === 0 ? 'is-active' : 'is-exited'
+                      }`}
                     aria-hidden={activeCommunityLead !== 0}
                   >
                     <div className="leads-comm-tag label-mono">COMMUNITY LEAD</div>
@@ -188,9 +187,8 @@ export default function LeadsPage({ onNavigate }) {
 
                   {/* Lead 02: Kusmitha Sai */}
                   <div
-                    className={`leads-comm-persona ${
-                      activeCommunityLead === 1 ? 'is-active' : 'is-incoming'
-                    }`}
+                    className={`leads-comm-persona ${activeCommunityLead === 1 ? 'is-active' : 'is-incoming'
+                      }`}
                     aria-hidden={activeCommunityLead !== 1}
                   >
                     <div className="leads-comm-tag label-mono">COMMUNITY LEAD</div>
@@ -230,9 +228,8 @@ export default function LeadsPage({ onNavigate }) {
                 <div className="leads-portrait-frame">
                   {/* Portrait 1: Sumanth */}
                   <div
-                    className={`leads-portrait-slide ${
-                      activeCommunityLead === 0 ? 'is-active' : 'is-exited'
-                    }`}
+                    className={`leads-portrait-slide ${activeCommunityLead === 0 ? 'is-active' : 'is-exited'
+                      }`}
                   >
                     <img
                       src={sumanthImg}
@@ -247,9 +244,8 @@ export default function LeadsPage({ onNavigate }) {
 
                   {/* Portrait 2: Kusmitha */}
                   <div
-                    className={`leads-portrait-slide ${
-                      activeCommunityLead === 1 ? 'is-active' : 'is-incoming'
-                    }`}
+                    className={`leads-portrait-slide ${activeCommunityLead === 1 ? 'is-active' : 'is-incoming'
+                      }`}
                   >
                     <img
                       src={kusmithaImg}
@@ -544,9 +540,8 @@ export default function LeadsPage({ onNavigate }) {
                       key={member.index}
                       src={member.image}
                       alt={member.alt}
-                      className={`nontech-preview-img ${
-                        activeNonTechIndex === idx ? 'is-visible' : ''
-                      }`}
+                      className={`nontech-preview-img ${activeNonTechIndex === idx ? 'is-visible' : ''
+                        }`}
                       loading="lazy"
                     />
                   ))}
