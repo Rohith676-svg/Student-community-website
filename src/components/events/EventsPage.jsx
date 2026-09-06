@@ -261,11 +261,14 @@ export default function EventsPage({ onNavigate }) {
             </div>
           </article>
 
-          {/* Subtle Editorial Scroll Link to External Hackathons */}
+          {/* Editorial Scroll Link to External Hackathons */}
           <div className="stc-events__jump events-reveal">
+            <span className="stc-events__jump-eyebrow label-mono">
+              LOOKING TO COMPETE NOW?
+            </span>
             <a
               href="#external-hackathons"
-              className="stc-events__jump-link label-mono"
+              className="btn btn-secondary stc-events__jump-btn stc-events__jump-link"
               onClick={scrollToHackathons}
             >
               <span className="stc-events__jump-text">EXPLORE EXTERNAL HACKATHONS</span>
