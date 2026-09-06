@@ -1,0 +1,242 @@
+.faculty-section {
+  padding: clamp(5rem, 10vw, 9rem) 0;
+  background-color: var(--bg);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.faculty__header {
+  margin-bottom: clamp(3.5rem, 6vw, 5.5rem);
+  max-width: 680px;
+}
+
+.faculty__eyebrow {
+  color: var(--accent);
+  margin-bottom: var(--space-sm);
+}
+
+.faculty__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 3.75rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: var(--space-sm);
+}
+
+.faculty__subtitle {
+  font-size: 1.15rem;
+  color: var(--muted);
+}
+
+/* Editorial list of 3 faculty members */
+.faculty__editorial-list {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(4.5rem, 7.5vw, 7rem);
+}
+
+.faculty__item {
+  display: grid;
+  grid-template-columns: minmax(280px, 400px) 1fr;
+  gap: clamp(2.5rem, 6vw, 5rem);
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-xl);
+}
+
+.faculty__item:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+/* Portrait frame */
+.faculty__portrait-frame {
+  position: relative;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.faculty__item.is-revealed .faculty__portrait-frame {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.faculty__portrait-wrap {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.faculty__portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  transition: transform var(--transition-slow);
+}
+
+.faculty__item:hover .faculty__portrait-img {
+  transform: scale(1.02);
+}
+
+.faculty__portrait-placeholder {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.faculty__placeholder-backdrop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.faculty__placeholder-backdrop .label-mono {
+  color: var(--text);
+  font-size: 0.8125rem;
+}
+
+.faculty__placeholder-spec {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--muted);
+}
+
+/* Left-to-Right Smooth Revealing Effect for Faculty About Text */
+.faculty__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 800ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.faculty__item.is-revealed .faculty__meta {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Staggered left-to-right text entrance inside meta */
+.faculty__item.is-revealed .faculty__index {
+  animation: revealLeftToRight 650ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
+}
+
+.faculty__item.is-revealed .faculty__role-tag {
+  animation: revealLeftToRight 650ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
+}
+
+.faculty__item.is-revealed .faculty__name {
+  animation: revealLeftToRight 750ms cubic-bezier(0.16, 1, 0.3, 1) 280ms both;
+}
+
+.faculty__item.is-revealed .faculty__department {
+  animation: revealLeftToRight 750ms cubic-bezier(0.16, 1, 0.3, 1) 360ms both;
+}
+
+.faculty__item.is-revealed .faculty__quote {
+  animation: revealLeftToRight 850ms cubic-bezier(0.16, 1, 0.3, 1) 450ms both;
+}
+
+@keyframes revealLeftToRight {
+  from {
+    opacity: 0;
+    transform: translateX(-36px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.faculty__index {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: var(--space-sm);
+}
+
+.faculty__role-tag {
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-xs);
+}
+
+.faculty__name {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3.6vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+}
+
+.faculty__department {
+  font-size: 1rem;
+  color: var(--muted);
+  margin-bottom: var(--space-lg);
+}
+
+.faculty__quote {
+  font-family: var(--font-body);
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+  line-height: 1.6;
+  color: var(--text);
+  font-style: italic;
+  max-width: 580px;
+  border-left: 2px solid var(--accent);
+  padding-left: var(--space-md);
+}
+
+@media (max-width: 860px) {
+  .faculty__item {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+
+  .faculty__portrait-frame {
+    max-width: 360px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faculty__portrait-frame,
+  .faculty__meta,
+  .faculty__index,
+  .faculty__role-tag,
+  .faculty__name,
+  .faculty__department,
+  .faculty__quote {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
