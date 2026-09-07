@@ -20,7 +20,6 @@
 .footer__credit-lock {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
   padding: 0.5rem 1rem;
   background-color: var(--bg);
   border: 1px solid var(--border);
@@ -31,22 +30,6 @@
   -moz-user-select: none !important;
   -ms-user-select: none !important;
   cursor: default;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.footer__credit-lock:hover {
-  border-color: var(--accent);
-  box-shadow: 0 4px 12px rgba(15, 16, 17, 0.08);
-}
-
-.footer__credit-badge {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  color: var(--muted);
-  border-right: 1px solid var(--border);
-  padding-right: 0.65rem;
 }
 
 .footer__credit-text {
@@ -61,7 +44,7 @@
 
 /* Fallback pseudo-content */
 .footer__credit-text:empty::after {
-  content: 'Built by Rohith Joseph';
+  content: 'Built by Rohith';
   display: inline;
 }
 

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import './Footer.css';
 
-const AUTHOR_NAME = 'Built by Rohith Joseph';
+const AUTHOR_NAME = 'Built by Rohith';
 Object.freeze(AUTHOR_NAME);
 
 export default function Footer({ onNavigate }) {
@@ -14,7 +14,7 @@ export default function Footer({ onNavigate }) {
     }
   };
 
-  // Tamper-proof enforcement for "Built by Rohith Joseph"
+  // Tamper-proof enforcement for "Built by Rohith"
   useEffect(() => {
     const targetTextId = 'stc-author-text';
     const containerId = 'stc-author-container';
@@ -33,7 +33,6 @@ export default function Footer({ onNavigate }) {
         container.id = containerId;
         container.setAttribute('data-author', AUTHOR_NAME);
         container.innerHTML = `
-          <span class="footer__credit-badge label-mono">PROJECT LEAD</span>
           <span class="footer__credit-text" id="${targetTextId}">${AUTHOR_NAME}</span>
         `;
         topRow.appendChild(container);
@@ -87,9 +86,8 @@ export default function Footer({ onNavigate }) {
             className="footer__credit-lock"
             id="stc-author-container"
             data-author={AUTHOR_NAME}
-            aria-label="Built by Rohith Joseph"
+            aria-label={AUTHOR_NAME}
           >
-            <span className="footer__credit-badge label-mono">PROJECT LEAD</span>
             <span className="footer__credit-text" id="stc-author-text">
               {AUTHOR_NAME}
             </span>
