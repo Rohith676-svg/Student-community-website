@@ -615,14 +615,10 @@ export default function LeadsPage({ onNavigate }) {
             </p>
             <div className="leads-join-action">
               <a
-                href="#join"
+                href="https://chat.whatsapp.com/IGahTMfZbY5GOewoO0SjVu"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="leads-cta-btn"
-                onClick={(e) => {
-                  if (onNavigate) {
-                    e.preventDefault();
-                    onNavigate('home', 'join');
-                  }
-                }}
               >
                 <span className="leads-cta-text">JOIN THE TEAM</span>
                 <span className="leads-cta-arrow" aria-hidden="true">&rarr;</span>

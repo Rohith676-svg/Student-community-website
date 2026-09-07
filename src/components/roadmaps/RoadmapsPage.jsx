@@ -605,7 +605,7 @@ export default function RoadmapsPage({ onNavigate }) {
 
           <div className="roadmaps-final-cta__actions">
             <a
-              href="https://discord.gg"
+              href="https://chat.whatsapp.com/IGahTMfZbY5GOewoO0SjVu"
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-primary roadmaps-final-cta__btn"

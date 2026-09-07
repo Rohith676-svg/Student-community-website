@@ -22,7 +22,12 @@ export default function Hero() {
         </p>
 
         <div className="hero__actions reveal reveal-delay-3">
-          <a href="#join" className="btn btn-primary hero__cta-primary">
+          <a
+            href="https://chat.whatsapp.com/IGahTMfZbY5GOewoO0SjVu"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary hero__cta-primary"
+          >
             Join the Community &rarr;
           </a>
           <a href="#purpose" className="btn btn-secondary hero__cta-secondary">

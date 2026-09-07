@@ -105,21 +105,10 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
           <div className="navbar__desktop-actions">
             <ThemeToggle theme={theme} onToggle={onToggleTheme} />
             <a
-              href={currentRoute === 'home' ? '#join' : '#join-team'}
+              href="https://chat.whatsapp.com/IGahTMfZbY5GOewoO0SjVu"
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn btn-primary navbar__cta"
-              onClick={(e) => {
-                if (currentRoute === 'home') {
-                  handleLinkClick(e, 'home', 'join');
-                } else {
-                  const el = document.getElementById('join-team');
-                  if (el) {
-                    e.preventDefault();
-                    el.scrollIntoView({ behavior: 'smooth' });
-                  } else {
-                    handleLinkClick(e, 'home', 'join');
-                  }
-                }
-              }}
             >
               Join Community
             </a>
@@ -185,22 +174,11 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
             </li>
           </ul>
           <a
-            href={currentRoute === 'home' ? '#join' : '#join-team'}
+            href="https://chat.whatsapp.com/IGahTMfZbY5GOewoO0SjVu"
+            target="_blank"
+            rel="noopener noreferrer"
             className="btn btn-primary navbar__mobile-cta"
-            onClick={(e) => {
-              if (currentRoute === 'home') {
-                handleLinkClick(e, 'home', 'join');
-              } else {
-                closeMobileMenu();
-                const el = document.getElementById('join-team');
-                if (el) {
-                  e.preventDefault();
-                  el.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  handleLinkClick(e, 'home', 'join');
-                }
-              }
-            }}
+            onClick={closeMobileMenu}
           >
             Join Community
           </a>

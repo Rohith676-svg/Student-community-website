@@ -18,7 +18,7 @@ export default function FinalCTA() {
 
         <div className="final-cta__actions reveal reveal-delay-3">
           <a
-            href="https://discord.gg"
+            href="https://chat.whatsapp.com/IGahTMfZbY5GOewoO0SjVu"
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-primary final-cta__btn"

@@ -578,9 +578,10 @@ export default function EventsPage({ onNavigate }) {
 
           <div className="events-cta__actions">
             <a
-              href="#join"
+              href="https://chat.whatsapp.com/IGahTMfZbY5GOewoO0SjVu"
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn btn-primary events-cta__btn"
-              onClick={handleJoinClick}
             >
               JOIN THE COMMUNITY &rarr;
             </a>

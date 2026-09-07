@@ -158,9 +158,10 @@ export default function Footer({ onNavigate }) {
               </li>
               <li>
                 <a
-                  href="#/"
+                  href="https://chat.whatsapp.com/IGahTMfZbY5GOewoO0SjVu"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="footer__link"
-                  onClick={(e) => handleNav(e, 'home', 'join')}
                 >
                   Join
                 </a>
@@ -175,6 +176,15 @@ export default function Footer({ onNavigate }) {
           </p>
 
           <div className="footer__socials" aria-label="Social links">
+            <a
+              href="https://chat.whatsapp.com/IGahTMfZbY5GOewoO0SjVu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer__social-link"
+              aria-label="WhatsApp"
+            >
+              WhatsApp
+            </a>
             <a
               href="https://github.com"
               target="_blank"
