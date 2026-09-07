@@ -1,6 +1,7 @@
 import React from 'react';
 import faculty1Img from '../assets/faculty-1.jpg';
 import faculty2Img from '../assets/faculty-2.jpg';
+import faculty3Img from '../assets/faculty-3.jpeg';
 import './FacultyPreview.css';
 
 const FACULTY = [
@@ -9,7 +10,7 @@ const FACULTY = [
     role: 'Head of the Department',
     name: 'Dr. A. Ganesh',
     department: 'Department of Computer Science & Engineering',
-    image: faculty1Img,
+    image: faculty2Img,
     quote:
       'Mentoring students to explore ideas fearlessly, bridge theory with practice, and cultivate an enduring engineering mindset.',
     placeholderLabel: 'Official Portrait Placeholder',
@@ -19,7 +20,7 @@ const FACULTY = [
     role: 'Year Incharge',
     name: 'Dr. A. Saritha Reddy',
     department: 'Department of Computer Science & Engineering',
-    image: faculty2Img,
+    image: faculty1Img,
     quote:
       'Guiding curious builders to collaborate across disciplines, solve real challenges, and grow into community leaders.',
     placeholderLabel: 'Official Portrait Placeholder',
@@ -29,7 +30,7 @@ const FACULTY = [
     role: 'Faculty Advisor',
     name: 'Dr. Vishnu',
     department: 'Department of Computer Science & Engineering',
-    image: null,
+    image: faculty3Img,
     quote:
       'Nurturing research curiosity, open experimentation, and the vision to create technology with lasting social impact.',
     placeholderLabel: 'Official Portrait Placeholder',
