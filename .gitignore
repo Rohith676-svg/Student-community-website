@@ -141,3 +141,12 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Project documentation
+STC_DESIGN.md
+STC_LEADS_DESIGN.md
+STC_EVENTS_DESIGN.md
+STC_ROADMAPS_DESIGN.md
+
+# Build output
+dist/
