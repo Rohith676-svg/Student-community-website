@@ -8,6 +8,9 @@ import Footer from './components/Footer';
 import LeadsPage from './components/leads/LeadsPage';
 import EventsPage from './components/events/EventsPage';
 import RoadmapsPage from './components/roadmaps/RoadmapsPage';
+import LoginPage from './components/auth/LoginPage';
+import RegisterPage from './components/auth/RegisterPage';
+import { AuthProvider } from './context/AuthContext';
 import { initScrollReveal } from './utils/revealObserver';
 
 export default function App() {
@@ -47,6 +50,12 @@ export default function App() {
     if (hash.startsWith('#/roadmaps') || hash === '#roadmaps' || path === '/roadmaps') {
       return 'roadmaps';
     }
+    if (hash.startsWith('#/login') || hash === '#login' || path === '/login') {
+      return 'login';
+    }
+    if (hash.startsWith('#/register') || hash === '#register' || path === '/register') {
+      return 'register';
+    }
     return 'home';
   };
 
@@ -73,6 +82,12 @@ export default function App() {
         window.scrollTo({ top: 0, behavior: 'instant' });
       } else if (targetRoute === 'roadmaps') {
         window.location.hash = '#/roadmaps';
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      } else if (targetRoute === 'login') {
+        window.location.hash = '#/login';
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      } else if (targetRoute === 'register') {
+        window.location.hash = '#/register';
         window.scrollTo({ top: 0, behavior: 'instant' });
       } else {
         if (sectionId) {
@@ -138,7 +153,8 @@ export default function App() {
   }, [currentRoute, transitionState]);
 
   return (
-    <div className="stc-app">
+    <AuthProvider>
+      <div className="stc-app">
       <Navbar
         currentRoute={currentRoute}
         onNavigate={handleNavigate}
@@ -166,6 +182,14 @@ export default function App() {
           <main id="main-content">
             <RoadmapsPage onNavigate={handleNavigate} />
           </main>
+        ) : currentRoute === 'login' ? (
+          <main id="main-content">
+            <LoginPage onNavigate={handleNavigate} />
+          </main>
+        ) : currentRoute === 'register' ? (
+          <main id="main-content">
+            <RegisterPage onNavigate={handleNavigate} />
+          </main>
         ) : (
           <main id="main-content">
             <Hero />
@@ -176,6 +200,7 @@ export default function App() {
         )}
       </div>
       <Footer onNavigate={handleNavigate} />
-    </div>
+      </div>
+    </AuthProvider>
   );
 }

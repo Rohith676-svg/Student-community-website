@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import ThemeToggle from './ThemeToggle';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'light', onToggleTheme }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { currentUser, userProfile, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -104,14 +106,41 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
           </ul>
           <div className="navbar__desktop-actions">
             <ThemeToggle theme={theme} onToggle={onToggleTheme} />
-            <a
-              href="https://chat.whatsapp.com/IGahTMfZbY5GOewoO0SjVu"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-primary navbar__cta"
-            >
-              Join Community
-            </a>
+            {currentUser ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>
+                  {userProfile?.displayName || currentUser.displayName || currentUser.email}
+                </span>
+                <button
+                  onClick={async () => {
+                    await logout();
+                    onNavigate('home');
+                  }}
+                  className="btn btn-primary navbar__cta"
+                  style={{ background: 'transparent', border: '1px solid var(--stc-border)', color: 'var(--stc-text-primary)' }}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <a
+                  href="#/login"
+                  onClick={(e) => handleLinkClick(e, 'login')}
+                  className="btn btn-primary navbar__cta"
+                  style={{ background: 'transparent', border: '1px solid var(--stc-border)', color: 'var(--stc-text-primary)' }}
+                >
+                  Login
+                </a>
+                <a
+                  href="#/register"
+                  onClick={(e) => handleLinkClick(e, 'register')}
+                  className="btn btn-primary navbar__cta"
+                >
+                  Sign Up
+                </a>
+              </div>
+            )}
           </div>
         </nav>
 
@@ -173,15 +202,36 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
               </a>
             </li>
           </ul>
-          <a
-            href="https://chat.whatsapp.com/IGahTMfZbY5GOewoO0SjVu"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-primary navbar__mobile-cta"
-            onClick={closeMobileMenu}
-          >
-            Join Community
-          </a>
+          {currentUser ? (
+            <button
+              className="btn btn-primary navbar__mobile-cta"
+              onClick={async () => {
+                await logout();
+                closeMobileMenu();
+                onNavigate('home');
+              }}
+            >
+              Logout
+            </button>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '1rem' }}>
+              <a
+                href="#/login"
+                className="btn btn-primary navbar__mobile-cta"
+                style={{ background: 'transparent', border: '1px solid var(--stc-border)', color: 'var(--stc-text-primary)' }}
+                onClick={(e) => handleLinkClick(e, 'login')}
+              >
+                Login
+              </a>
+              <a
+                href="#/register"
+                className="btn btn-primary navbar__mobile-cta"
+                onClick={(e) => handleLinkClick(e, 'register')}
+              >
+                Sign Up
+              </a>
+            </div>
+          )}
         </nav>
       </div>
     </header>
