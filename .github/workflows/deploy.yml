@@ -33,6 +33,13 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY: "AIzaSyAe1tPoQGBVYRp2WB14NM3MBWSODdjxfq0"
+          VITE_FIREBASE_AUTH_DOMAIN: "stc1234-3cabb.firebaseapp.com"
+          VITE_FIREBASE_PROJECT_ID: "stc1234-3cabb"
+          VITE_FIREBASE_STORAGE_BUCKET: "stc1234-3cabb.firebasestorage.app"
+          VITE_FIREBASE_MESSAGING_SENDER_ID: "23144272165"
+          VITE_FIREBASE_APP_ID: "1:23144272165:web:439082178f19bc68c8cacc"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
