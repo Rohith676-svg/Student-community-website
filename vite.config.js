@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
 export default defineConfig({
-  base: '/Student-community-website/',
+  base: process.env.VITE_BASE_PATH || '/',
   plugins: [
     react(),
     {
@@ -19,14 +19,13 @@ export default defineConfig({
             pathname === '/stc-admin' ||
             pathname === '/stc-admin/' ||
             pathname === '/STC-Admin' ||
-            pathname === '/STC-Admin/' ||
             pathname === '/Student-community-website/admin' ||
             pathname === '/Student-community-website/admin/' ||
             pathname === '/Student-community-website/stc-admin' ||
             pathname === '/Student-community-website/stc-admin/' ||
             pathname === '/Student-community-website/STC-Admin'
           ) {
-            res.writeHead(302, { Location: '/Student-community-website/STC-Admin/' });
+            res.writeHead(302, { Location: '/STC-Admin/' });
             res.end();
             return;
           }
