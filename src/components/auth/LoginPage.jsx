@@ -24,8 +24,12 @@ export default function LoginPage({ onNavigate }) {
       setError('Invalid email or password.');
     } else if (err.code === 'auth/account-exists-with-different-credential') {
       setError('An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address.');
+    } else if (err.code === 'auth/unauthorized-domain') {
+      setError('This domain is not authorized in Firebase Console. Add student-community-website-ui.onrender.com to Firebase Console > Authentication > Settings > Authorized domains.');
+    } else if (err.code === 'auth/popup-closed-by-user') {
+      setError('Google sign-in popup was closed before completing.');
     } else {
-      setError('Failed to sign in. Please try again.');
+      setError(err.message || 'Failed to sign in. Please try again.');
     }
   };
 

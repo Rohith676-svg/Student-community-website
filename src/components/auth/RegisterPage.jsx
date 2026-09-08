@@ -33,8 +33,12 @@ export default function RegisterPage({ onNavigate }) {
       setError('An account already exists with this email address.');
     } else if (err.code === 'auth/weak-password') {
       setError('Password should be at least 6 characters.');
+    } else if (err.code === 'auth/unauthorized-domain') {
+      setError('This domain is not authorized in Firebase Console. Add student-community-website-ui.onrender.com to Firebase Console > Authentication > Settings > Authorized domains.');
+    } else if (err.code === 'auth/popup-closed-by-user') {
+      setError('Google sign-in popup was closed before completing.');
     } else {
-      setError('Failed to create an account. Please try again.');
+      setError(err.message || 'Failed to create an account. Please try again.');
     }
   };
 
