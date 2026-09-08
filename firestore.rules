@@ -1,0 +1,58 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdminOrLead() {
+      return isAuthenticated() && (
+        request.auth.token.role == 'admin' || 
+        request.auth.token.role == 'lead'
+      );
+    }
+
+    // Events collection
+    match /events/{eventId} {
+      // Allow public read only for published events
+      // Allow admin / leads to read all events including drafts
+      allow read: if resource.data.status == 'PUBLISHED' || isAdminOrLead();
+
+      // Mutations must be performed through the Express backend via Firebase Admin SDK
+      allow write: if isAdminOrLead();
+
+      // Registrations subcollection
+      match /registrations/{uid} {
+        // Students can read their own registration; Admins and Leads can read all registrations
+        allow read: if isOwner(uid) || isAdminOrLead();
+
+        // Registration mutations are strictly executed through the concurrency-safe Express backend
+        allow write: if false;
+      }
+    }
+
+    // Collection group for registrations (used by Admin portal for live counts)
+    match /{path=**}/registrations/{uid} {
+      allow read: if isOwner(uid) || isAdminOrLead();
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdminOrLead();
+      // Profile updates are mediated by the backend /api/auth/profile
+      allow write: if false;
+    }
+
+    // Internal system logs
+    match /emailLogs/{logId} {
+      allow read, write: if false;
+    }
+  }
+}

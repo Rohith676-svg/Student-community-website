@@ -30,5 +30,8 @@ const initFirebase = () => {
 const firebaseApp = initFirebase();
 
 export const db = firebaseApp ? getFirestore(firebaseApp) : null;
+if (db) {
+  db.settings({ ignoreUndefinedProperties: true });
+}
 export const adminAuth = firebaseApp ? getAuth(firebaseApp) : null;
 export const admin = { auth: () => adminAuth }; // polyfill for auth.js middleware

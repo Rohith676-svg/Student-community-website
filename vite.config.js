@@ -10,17 +10,25 @@ export default defineConfig({
       name: 'admin-route-rewrite',
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
-          const url = req.url || '';
+          const rawUrl = req.url || '';
+          const pathname = rawUrl.split('?')[0];
+
           if (
-            url === '/admin' ||
-            url.startsWith('/admin?') ||
-            url.startsWith('/admin/') ||
-            url === '/stc-admin' ||
-            url.startsWith('/stc-admin/') ||
-            url === '/STC-Admin' ||
-            url.startsWith('/STC-Admin/')
+            pathname === '/admin' ||
+            pathname === '/admin/' ||
+            pathname === '/stc-admin' ||
+            pathname === '/stc-admin/' ||
+            pathname === '/STC-Admin' ||
+            pathname === '/STC-Admin/' ||
+            pathname === '/Student-community-website/admin' ||
+            pathname === '/Student-community-website/admin/' ||
+            pathname === '/Student-community-website/stc-admin' ||
+            pathname === '/Student-community-website/stc-admin/' ||
+            pathname === '/Student-community-website/STC-Admin'
           ) {
-            req.url = '/STC-Admin/index.html';
+            res.writeHead(302, { Location: '/Student-community-website/STC-Admin/' });
+            res.end();
+            return;
           }
           next();
         });

@@ -72,6 +72,14 @@ function AdminAppInner() {
       }
     }
     loadCounts();
+
+    const unsubEvents = eventsService.subscribeEvents?.(() => loadCounts());
+    const unsubRegs = registrationsService.subscribeRegistrations?.(() => loadCounts());
+
+    return () => {
+      if (unsubEvents) unsubEvents();
+      if (unsubRegs) unsubRegs();
+    };
   }, [currentRoute]);
 
   if (!isAuthenticated) {

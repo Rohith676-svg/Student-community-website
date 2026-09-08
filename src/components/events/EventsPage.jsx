@@ -6,6 +6,10 @@ import {
   MODE_FILTERS,
 } from './hackathonsData';
 import { initScrollReveal } from '../../utils/revealObserver';
+import { collection, query, where, onSnapshot, doc } from 'firebase/firestore';
+import { db } from '../../config/firebase';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 import './EventsPage.css';
 
 const PROGRESSION_STAGES = [
@@ -40,6 +44,124 @@ const PROGRESSION_STAGES = [
 ];
 
 export default function EventsPage({ onNavigate }) {
+  const { currentUser } = useAuth();
+  const [liveEvents, setLiveEvents] = useState([]);
+  const [userRegistrations, setUserRegistrations] = useState({});
+  const [registeringId, setRegisteringId] = useState(null);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 4000);
+  };
+
+  // Fetch published events from backend API & subscribe to real-time updates
+  const fetchEvents = async () => {
+    try {
+      const res = await api.get('/events');
+      if (res.data?.events) {
+        setLiveEvents(res.data.events);
+      }
+    } catch (e) {
+      console.warn('API fetch events error:', e.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+
+    // Set up real-time onSnapshot listener
+    let unsubscribe = () => {};
+    try {
+      const q = query(collection(db, 'events'), where('status', '==', 'PUBLISHED'));
+      unsubscribe = onSnapshot(q, (snapshot) => {
+        const list = [];
+        snapshot.forEach((d) => {
+          list.push({ id: d.id, ...d.data() });
+        });
+        if (list.length > 0) {
+          setLiveEvents(list);
+        }
+      }, (err) => {
+        console.warn('Real-time events listener notice (using API fallback):', err.message);
+      });
+    } catch (e) {
+      console.warn('Firestore subscription setup error:', e);
+    }
+
+    // Periodic sync interval as backup
+    const interval = setInterval(fetchEvents, 8000);
+
+    return () => {
+      unsubscribe();
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Sync user registration status across published events
+  useEffect(() => {
+    if (!currentUser || liveEvents.length === 0) {
+      setUserRegistrations({});
+      return;
+    }
+
+    // 1. Fetch authoritative registration status from backend API
+    liveEvents.forEach(async (ev) => {
+      try {
+        const res = await api.get(`/events/${ev.id}/my-registration`);
+        if (res.data?.registered && res.data?.registration) {
+          setUserRegistrations((prev) => ({ ...prev, [ev.id]: res.data.registration }));
+        }
+      } catch (e) {
+        // Safe ignore
+      }
+    });
+
+    // 2. Real-time Firestore listener when client rules permit
+    const unsubs = [];
+    liveEvents.forEach((ev) => {
+      try {
+        const regRef = doc(db, 'events', ev.id, 'registrations', currentUser.uid);
+        const unsub = onSnapshot(regRef, (docSnap) => {
+          if (docSnap.exists()) {
+            setUserRegistrations((prev) => ({ ...prev, [ev.id]: docSnap.data() }));
+          }
+        }, () => {});
+        unsubs.push(unsub);
+      } catch (e) {
+        // Safe listener ignore
+      }
+    });
+
+    return () => {
+      unsubs.forEach((u) => u());
+    };
+  }, [currentUser, liveEvents]);
+
+  const handleRegister = async (eventId) => {
+    if (!currentUser) {
+      if (onNavigate) onNavigate('login');
+      return;
+    }
+
+    try {
+      setRegisteringId(eventId);
+      const res = await api.post(`/events/${eventId}/register`);
+      if (res.data.success) {
+        showToast('Registration confirmed! Check your email for details.');
+        setUserRegistrations((prev) => ({ ...prev, [eventId]: res.data.registration }));
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Registration failed. Please try again.';
+      showToast(msg);
+      if (err.response?.status === 409 && err.response?.data?.registrationId) {
+        setUserRegistrations((prev) => ({ ...prev, [eventId]: { id: err.response.data.registrationId } }));
+      }
+    } finally {
+      setRegisteringId(null);
+    }
+  };
+
   // Filter state for external hackathons
   const [activeTheme, setActiveTheme] = useState('ALL');
   const [activeMode, setActiveMode] = useState('ALL');
@@ -56,7 +178,7 @@ export default function EventsPage({ onNavigate }) {
   useEffect(() => {
     const cleanup = initScrollReveal();
     return cleanup;
-  }, [activeTheme, activeMode]);
+  }, [activeTheme, activeMode, liveEvents]);
 
   // Track scroll position in Progression story track
   useEffect(() => {
@@ -86,17 +208,39 @@ export default function EventsPage({ onNavigate }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Combined hackathon list: combines Firestore external hackathons with static reference hackathons
+  const combinedHackathons = useMemo(() => {
+    const liveExternal = liveEvents
+      .filter((e) => e.type === 'EXTERNAL_HACKATHON')
+      .map((e, idx) => ({
+        id: e.id,
+        index: String(idx + 1).padStart(2, '0'),
+        name: e.name || e.title,
+        date: e.startDate ? (e.endDate ? `${e.startDate} – ${e.endDate}` : e.startDate) : (e.date || 'TBA'),
+        mode: e.mode || 'ONLINE',
+        categories: e.categories || ['OTHER'],
+        themeDisplay: (e.categories || ['OTHER']).join(' / '),
+        location: e.location || 'ONLINE',
+        platform: e.platform || e.organizer || 'STC',
+        status: e.status || 'UPCOMING',
+        description: e.description || '',
+        externalUrl: e.registrationUrl || '#',
+      }));
+
+    return [...liveExternal, ...EXTERNAL_HACKATHONS];
+  }, [liveEvents]);
+
   // Filtered hackathon list
   const filteredHackathons = useMemo(() => {
-    return EXTERNAL_HACKATHONS.filter((h) => {
+    return combinedHackathons.filter((h) => {
       const themeMatch =
         activeTheme === 'ALL' ||
-        h.categories.includes(activeTheme) ||
-        (activeTheme === 'OTHER' && h.categories.includes('OTHER'));
+        (h.categories && h.categories.includes(activeTheme)) ||
+        (activeTheme === 'OTHER' && h.categories && h.categories.includes('OTHER'));
       const modeMatch = activeMode === 'ALL' || h.mode === activeMode;
       return themeMatch && modeMatch;
     });
-  }, [activeTheme, activeMode]);
+  }, [combinedHackathons, activeTheme, activeMode]);
 
   const handleRowClick = (id) => {
     setExpandedRowId((prev) => (prev === id ? null : id));
@@ -192,58 +336,157 @@ export default function EventsPage({ onNavigate }) {
             </p>
           </div>
 
-          {/* Event 01 — Inauguration (Oversized Editorial Viewport Composition) */}
-          <article className="inauguration-scene events-reveal">
-            <div className="inauguration-scene__rule" aria-hidden="true">
-              <span className="inauguration-scene__rule-line"></span>
-              <span className="inauguration-scene__rule-dot"></span>
-            </div>
+          {/* Live STC Events or Inauguration Fallback */}
+          {liveEvents.filter(e => !e.type || e.type === 'STC_EVENT' || e.type === 'INTERNAL_HACKATHON').length > 0 ? (
+            liveEvents
+              .filter(e => !e.type || e.type === 'STC_EVENT' || e.type === 'INTERNAL_HACKATHON')
+              .map((ev, idx) => {
+                const isRegistered = !!userRegistrations[ev.id];
+                const isClosed = ev.registrationStatus === 'CLOSED';
+                const isFull = ev.capacity && ev.registrationCount >= ev.capacity;
+                const isTBA = (ev.date === 'TBA' || ev.date === 'TO BE ANNOUNCED') && ev.registrationStatus !== 'OPEN';
 
-            <div className="inauguration-scene__grid">
-              <div className="inauguration-scene__left">
-                <div className="inauguration-scene__index label-mono">01</div>
-                <div className="inauguration-scene__badge-wrap">
-                  <span className="inauguration-scene__badge label-mono">
-                    OFFICIAL STC EVENT
-                  </span>
+                return (
+                  <article key={ev.id} className="inauguration-scene events-reveal" style={{ marginBottom: '32px' }}>
+                    <div className="inauguration-scene__rule" aria-hidden="true">
+                      <span className="inauguration-scene__rule-line"></span>
+                      <span className="inauguration-scene__rule-dot"></span>
+                    </div>
+
+                    <div className="inauguration-scene__grid">
+                      <div className="inauguration-scene__left">
+                        <div className="inauguration-scene__index label-mono">
+                          {String(idx + 1).padStart(2, '0')}
+                        </div>
+                        <div className="inauguration-scene__badge-wrap">
+                          <span className="inauguration-scene__badge label-mono">
+                            {ev.type === 'INTERNAL_HACKATHON' ? 'INTERNAL HACKATHON' : 'OFFICIAL STC EVENT'}
+                          </span>
+                        </div>
+                        <p className="inauguration-scene__desc">
+                          {ev.description || 'Bringing students together around technology, curiosity, collaboration and the things they want to build.'}
+                        </p>
+                      </div>
+
+                      <div className="inauguration-scene__center">
+                        <h3 className="inauguration-scene__title">
+                          {ev.title || ev.name || 'STC EVENT'}
+                        </h3>
+                        {ev.category && (
+                          <span className="inauguration-scene__title-sub label-mono">
+                            {ev.category.toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="inauguration-scene__right">
+                        <dl className="inauguration-meta">
+                          <div className="inauguration-meta__item">
+                            <dt className="label-mono">DATE</dt>
+                            <dd>{ev.date || 'TO BE ANNOUNCED'}</dd>
+                          </div>
+                          <div className="inauguration-meta__item">
+                            <dt className="label-mono">TIME</dt>
+                            <dd>{ev.time || 'TO BE ANNOUNCED'}</dd>
+                          </div>
+                          <div className="inauguration-meta__item">
+                            <dt className="label-mono">LOCATION</dt>
+                            <dd>{ev.location || ev.venue || 'TO BE ANNOUNCED'}</dd>
+                          </div>
+                        </dl>
+
+                        <div className="inauguration-scene__cta-wrap">
+                          {isRegistered ? (
+                            <span
+                              className="inauguration-pill label-mono"
+                              role="status"
+                              style={{ border: '1px solid currentColor', opacity: 0.9 }}
+                            >
+                              REGISTERED ✓
+                            </span>
+                          ) : isClosed ? (
+                            <span className="inauguration-pill label-mono" role="status">
+                              REGISTRATION CLOSED
+                            </span>
+                          ) : isFull ? (
+                            <span className="inauguration-pill label-mono" role="status">
+                              CAPACITY REACHED
+                            </span>
+                          ) : isTBA ? (
+                            <span className="inauguration-pill label-mono" role="status">
+                              DETAILS COMING SOON
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              className="btn btn-primary label-mono"
+                              style={{ padding: '8px 18px', fontSize: '11px', letterSpacing: '0.08em' }}
+                              onClick={() => handleRegister(ev.id)}
+                              disabled={registeringId === ev.id}
+                            >
+                              {registeringId === ev.id ? 'REGISTERING...' : 'REGISTER FOR EVENT →'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })
+          ) : (
+            /* Event 01 — Inauguration (Oversized Editorial Viewport Composition) */
+            <article className="inauguration-scene events-reveal">
+              <div className="inauguration-scene__rule" aria-hidden="true">
+                <span className="inauguration-scene__rule-line"></span>
+                <span className="inauguration-scene__rule-dot"></span>
+              </div>
+
+              <div className="inauguration-scene__grid">
+                <div className="inauguration-scene__left">
+                  <div className="inauguration-scene__index label-mono">01</div>
+                  <div className="inauguration-scene__badge-wrap">
+                    <span className="inauguration-scene__badge label-mono">
+                      OFFICIAL STC EVENT
+                    </span>
+                  </div>
+                  <p className="inauguration-scene__desc">
+                    The beginning of STC &mdash; bringing students together around
+                    technology, curiosity, collaboration and the things they want to build.
+                  </p>
                 </div>
-                <p className="inauguration-scene__desc">
-                  The beginning of STC &mdash; bringing students together around
-                  technology, curiosity, collaboration and the things they want to build.
-                </p>
-              </div>
 
-              <div className="inauguration-scene__center">
-                <h3 className="inauguration-scene__title">
-                  <span>STC</span>
-                  <span className="inauguration-scene__title-sub">INAUGURATION</span>
-                </h3>
-              </div>
+                <div className="inauguration-scene__center">
+                  <h3 className="inauguration-scene__title">
+                    <span>STC</span>
+                    <span className="inauguration-scene__title-sub">INAUGURATION</span>
+                  </h3>
+                </div>
 
-              <div className="inauguration-scene__right">
-                <dl className="inauguration-meta">
-                  <div className="inauguration-meta__item">
-                    <dt className="label-mono">DATE</dt>
-                    <dd>TO BE ANNOUNCED</dd>
-                  </div>
-                  <div className="inauguration-meta__item">
-                    <dt className="label-mono">TIME</dt>
-                    <dd>TO BE ANNOUNCED</dd>
-                  </div>
-                  <div className="inauguration-meta__item">
-                    <dt className="label-mono">LOCATION</dt>
-                    <dd>TO BE ANNOUNCED</dd>
-                  </div>
-                </dl>
+                <div className="inauguration-scene__right">
+                  <dl className="inauguration-meta">
+                    <div className="inauguration-meta__item">
+                      <dt className="label-mono">DATE</dt>
+                      <dd>TO BE ANNOUNCED</dd>
+                    </div>
+                    <div className="inauguration-meta__item">
+                      <dt className="label-mono">TIME</dt>
+                      <dd>TO BE ANNOUNCED</dd>
+                    </div>
+                    <div className="inauguration-meta__item">
+                      <dt className="label-mono">LOCATION</dt>
+                      <dd>TO BE ANNOUNCED</dd>
+                    </div>
+                  </dl>
 
-                <div className="inauguration-scene__cta-wrap">
-                  <span className="inauguration-pill label-mono" role="status">
-                    DETAILS COMING SOON
-                  </span>
+                  <div className="inauguration-scene__cta-wrap">
+                    <span className="inauguration-pill label-mono" role="status">
+                      DETAILS COMING SOON
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </article>
+            </article>
+          )}
 
           {/* Editorial Scroll Link to External Hackathons */}
           <div className="stc-events__jump events-reveal">
@@ -595,6 +838,32 @@ export default function EventsPage({ onNavigate }) {
           </div>
         </div>
       </section>
+
+      {/* Floating Action Feedback Toast */}
+      {toastMessage && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 9999,
+            background: 'var(--accent, #171717)',
+            color: 'var(--bg-main, #ffffff)',
+            padding: '12px 20px',
+            borderRadius: '4px',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '12px',
+            letterSpacing: '0.04em',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+            maxWidth: '360px',
+            lineHeight: 1.5,
+          }}
+          role="status"
+          aria-live="polite"
+        >
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 }

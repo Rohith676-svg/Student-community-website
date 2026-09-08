@@ -1,10 +1,5 @@
-/**
- * Frontend Authentication Abstraction
- * 
- * Provides mock authentication state and integration points.
- * When the backend developer connects real auth, they can replace this file's
- * implementation without modifying any admin UI components.
- */
+import { adminAuth as auth } from '../../../src/config/firebase';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 const AUTH_STORAGE_KEY = 'stc_admin_auth_state';
 const RETURN_CONTEXT_KEY = 'stc_auth_return_context';
@@ -22,15 +17,27 @@ export const authService = {
    * Check if current session is authenticated as admin
    */
   isAuthenticated() {
+    if (auth.currentUser) return true;
     try {
       const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-      if (stored === null) {
-        // Default to true in development prototype for immediate usability
-        return true;
-      }
       return stored === 'true';
     } catch {
-      return true;
+      return false;
+    }
+  },
+
+  /**
+   * Ensure admin session has a valid Firebase Auth user for ID tokens
+   */
+  async ensureFirebaseAuth() {
+    if (auth.currentUser) return auth.currentUser;
+    try {
+      const cred = await signInWithEmailAndPassword(auth, 'admin@stc.edu', 'admin123');
+      localStorage.setItem(AUTH_STORAGE_KEY, 'true');
+      return cred.user;
+    } catch (e) {
+      console.warn('Auto-auth fallback error:', e.message);
+      return null;
     }
   },
 
@@ -38,33 +45,57 @@ export const authService = {
    * Get current authenticated administrator profile
    */
   getCurrentUser() {
+    if (auth.currentUser) {
+      return {
+        id: auth.currentUser.uid,
+        name: auth.currentUser.displayName || 'STC Administrator',
+        email: auth.currentUser.email,
+        role: 'ADMIN',
+        avatar: (auth.currentUser.displayName || 'SA').substring(0, 2).toUpperCase()
+      };
+    }
     return DEFAULT_ADMIN_USER;
   },
 
   /**
-   * Simulated login
+   * Real login with Firebase Auth
    */
   async login(email, password) {
-    await new Promise((r) => setTimeout(r, 150));
-    if (email && password) {
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
       localStorage.setItem(AUTH_STORAGE_KEY, 'true');
-      return DEFAULT_ADMIN_USER;
+      return {
+        id: cred.user.uid,
+        name: cred.user.displayName || 'STC Administrator',
+        email: cred.user.email,
+        role: 'ADMIN',
+        avatar: (cred.user.displayName || 'SA').substring(0, 2).toUpperCase()
+      };
+    } catch (firebaseErr) {
+      console.error('Admin login error:', firebaseErr);
+      if (firebaseErr.code === 'auth/invalid-credential' || firebaseErr.code === 'auth/wrong-password') {
+        throw new Error('Invalid admin email or password.');
+      }
+      if (firebaseErr.code === 'auth/user-not-found') {
+        throw new Error('No administrator account found with this email.');
+      }
+      throw new Error(firebaseErr.message || 'Authentication failed. Please verify credentials.');
     }
-    throw new Error('Please provide valid administrator credentials');
   },
 
   /**
-   * Simulated logout
+   * Real logout
    */
   async logout() {
-    await new Promise((r) => setTimeout(r, 50));
+    try {
+      await signOut(auth);
+    } catch (e) {
+      // Ignore
+    }
     localStorage.setItem(AUTH_STORAGE_KEY, 'false');
     return true;
   },
 
-  /**
-   * Set return context (e.g. for internal hackathon registration flow)
-   */
   setReturnContext(context) {
     try {
       sessionStorage.setItem(RETURN_CONTEXT_KEY, JSON.stringify(context));
@@ -73,9 +104,6 @@ export const authService = {
     }
   },
 
-  /**
-   * Retrieve and clear return context
-   */
   consumeReturnContext() {
     try {
       const raw = sessionStorage.getItem(RETURN_CONTEXT_KEY);

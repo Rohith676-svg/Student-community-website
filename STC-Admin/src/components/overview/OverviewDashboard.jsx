@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { statsService } from '../../services/statsService';
+import { registrationsService } from '../../services/registrationsService';
+import { eventsService } from '../../services/eventsService';
 import CommunityStats from './CommunityStats';
 import DepartmentStats from './DepartmentStats';
 import YearStats from './YearStats';
@@ -14,7 +16,6 @@ export default function OverviewDashboard({ onNavigate }) {
     let isMounted = true;
     async function loadStats() {
       try {
-        setLoading(true);
         const data = await statsService.getOverviewStats();
         if (isMounted) setStats(data);
       } catch (err) {
@@ -24,8 +25,18 @@ export default function OverviewDashboard({ onNavigate }) {
       }
     }
     loadStats();
+
+    const unsubRegs = registrationsService.subscribeRegistrations?.(() => {
+      loadStats();
+    });
+    const unsubEvents = eventsService.subscribeEvents?.(() => {
+      loadStats();
+    });
+
     return () => {
       isMounted = false;
+      if (unsubRegs) unsubRegs();
+      if (unsubEvents) unsubEvents();
     };
   }, []);
 

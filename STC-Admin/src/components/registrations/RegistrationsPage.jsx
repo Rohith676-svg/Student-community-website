@@ -52,23 +52,37 @@ export default function RegistrationsPage({ onShowToast }) {
     fetchRegistrations();
   }, [fetchRegistrations]);
 
+  // Real-time Firestore updates
+  useEffect(() => {
+    if (registrationsService.subscribeRegistrations) {
+      const unsub = registrationsService.subscribeRegistrations(() => {
+        fetchRegistrations();
+      });
+      return () => unsub();
+    }
+  }, [fetchRegistrations]);
+
   const handleUpdateStatus = async (id, newStatus) => {
     try {
-      await registrationsService.updateRegistrationStatus(id, newStatus);
+      const target = registrations.find(r => r.id === id || r.userId === id);
+      await registrationsService.updateRegistrationStatus(id, newStatus, target?.eventId);
       if (onShowToast) onShowToast(`Registration status updated to ${newStatus}`);
       fetchRegistrations();
-    } catch {
-      if (onShowToast) onShowToast('Failed to update registration status', 'error');
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Failed to update registration status';
+      if (onShowToast) onShowToast(msg, 'error');
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      await registrationsService.deleteRegistration(id);
+      const target = registrations.find(r => r.id === id || r.userId === id);
+      await registrationsService.deleteRegistration(id, target?.eventId);
       if (onShowToast) onShowToast('Registration record removed');
       fetchRegistrations();
-    } catch {
-      if (onShowToast) onShowToast('Failed to remove registration', 'error');
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Failed to remove registration';
+      if (onShowToast) onShowToast(msg, 'error');
     }
   };
 

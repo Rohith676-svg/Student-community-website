@@ -8,6 +8,8 @@ import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
 import healthRoutes from './routes/health.routes.js';
 import authRoutes from './routes/auth.routes.js';
+import eventRoutes from './routes/event.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 const app = express();
 
@@ -23,6 +25,8 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api', healthRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 and Error Handling
 app.use(notFound);

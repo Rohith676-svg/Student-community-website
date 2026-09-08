@@ -42,6 +42,16 @@ export default function EventsManagement({ onShowToast }) {
     fetchEvents();
   }, [fetchEvents]);
 
+  // Real-time Firestore updates
+  useEffect(() => {
+    if (eventsService.subscribeEvents) {
+      const unsub = eventsService.subscribeEvents(() => {
+        fetchEvents();
+      });
+      return () => unsub();
+    }
+  }, [fetchEvents]);
+
   // Counts for tabs
   const [allEvents, setAllEvents] = useState([]);
   useEffect(() => {
@@ -68,8 +78,9 @@ export default function EventsManagement({ onShowToast }) {
         );
       }
       fetchEvents();
-    } catch {
-      if (onShowToast) onShowToast('Failed to change publish status', 'error');
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Failed to change publish status';
+      if (onShowToast) onShowToast(msg, 'error');
     }
   };
 
@@ -83,8 +94,10 @@ export default function EventsManagement({ onShowToast }) {
         if (onShowToast) onShowToast('New event created successfully');
       }
       fetchEvents();
-    } catch {
-      if (onShowToast) onShowToast('Failed to save event', 'error');
+    } catch (err) {
+      console.error('Save event error:', err);
+      const msg = err.response?.data?.message || err.message || 'Failed to save event';
+      if (onShowToast) onShowToast(msg, 'error');
     }
   };
 
@@ -95,8 +108,9 @@ export default function EventsManagement({ onShowToast }) {
       if (onShowToast) onShowToast('Event deleted successfully');
       setDeletingEvent(null);
       fetchEvents();
-    } catch {
-      if (onShowToast) onShowToast('Failed to delete event', 'error');
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Failed to delete event';
+      if (onShowToast) onShowToast(msg, 'error');
     }
   };
 

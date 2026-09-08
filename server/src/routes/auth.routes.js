@@ -1,6 +1,7 @@
 import express from 'express';
 import { db } from '../config/firebase.js';
 import { requireAuth } from '../middleware/auth.js';
+import emailService from '../services/email.service.js';
 
 const router = express.Router();
 
@@ -38,6 +39,11 @@ router.get('/me', requireAuth, async (req, res) => {
     };
 
     await userRef.set(newProfile);
+
+    // Asynchronously send the welcome email
+    emailService.sendWelcomeEmail(newProfile).catch(err => 
+      console.error('Failed to trigger welcome email in background:', err)
+    );
 
     return res.status(200).json({
       success: true,
@@ -84,6 +90,11 @@ router.post('/profile', requireAuth, async (req, res) => {
         updatedAt: new Date()
       };
       await userRef.set(profileData);
+
+      // Asynchronously send the welcome email
+      emailService.sendWelcomeEmail(profileData).catch(err => 
+        console.error('Failed to trigger welcome email in background:', err)
+      );
     } else {
       // Update existing profile (e.g. completing a Google profile)
       profileData = {

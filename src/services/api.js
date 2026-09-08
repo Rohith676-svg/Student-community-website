@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { auth } from '../config/firebase';
+import { auth, adminAuth } from '../config/firebase';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
@@ -11,7 +11,14 @@ const api = axios.create({
 // Request interceptor for adding the auth token
 api.interceptors.request.use(
   async (config) => {
-    const user = auth.currentUser;
+    // Check if running in admin portal context or public student context
+    const isAdminContext = typeof window !== 'undefined' && 
+      (window.location.pathname.includes('/STC-Admin') || window.location.pathname.includes('/admin'));
+
+    const user = isAdminContext
+      ? (adminAuth?.currentUser || auth?.currentUser)
+      : (auth?.currentUser || adminAuth?.currentUser);
+
     if (user) {
       const token = await user.getIdToken();
       config.headers.Authorization = `Bearer ${token}`;

@@ -1,5 +1,6 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -10,7 +11,20 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-const app = initializeApp(firebaseConfig);
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+export const db = getFirestore(app);
+
+// Dedicated Admin Firebase App instance for decoupled admin auth persistence
+const adminAppName = 'stc-admin-app';
+const adminApp = getApps().some(a => a.name === adminAppName)
+  ? getApp(adminAppName)
+  : initializeApp(firebaseConfig, adminAppName);
+
+export const adminAuth = getAuth(adminApp);
+export const adminDb = getFirestore(adminApp);
+
+export default app;
+
