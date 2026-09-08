@@ -14,28 +14,12 @@ import adminRoutes from './routes/admin.routes.js';
 const app = express();
 
 // Middleware
-app.use(helmet());
-const allowedOrigins = [
-  env.FRONTEND_URL,
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://localhost:5173'
-].filter(Boolean);
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. server-to-server or tools)
-    if (!origin) return callback(null, true);
-    if (
-      env.FRONTEND_URL === '*' || 
-      allowedOrigins.includes(origin) || 
-      origin.endsWith('.onrender.com') ||
-      origin.includes('localhost')
-    ) {
-      return callback(null, true);
-    }
-    return callback(null, true);
-  },
+  origin: true,
   credentials: true
 }));
 app.use(express.json());

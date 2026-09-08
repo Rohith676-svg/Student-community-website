@@ -29,7 +29,10 @@ export default function RegisterPage({ onNavigate }) {
 
   const handleError = (err) => {
     console.error(err);
-    if (err.code === 'auth/email-already-in-use') {
+    const apiError = err.response?.data?.message;
+    if (apiError) {
+      setError(apiError);
+    } else if (err.code === 'auth/email-already-in-use') {
       setError('An account already exists with this email address.');
     } else if (err.code === 'auth/weak-password') {
       setError('Password should be at least 6 characters.');
@@ -37,6 +40,8 @@ export default function RegisterPage({ onNavigate }) {
       setError('This domain is not authorized in Firebase Console. Add student-community-website-ui.onrender.com to Firebase Console > Authentication > Settings > Authorized domains.');
     } else if (err.code === 'auth/popup-closed-by-user') {
       setError('Google sign-in popup was closed before completing.');
+    } else if (err.message === 'Network Error' || err.code === 'ERR_NETWORK') {
+      setError('Unable to reach the backend API. Please make sure the backend service on Render is active.');
     } else {
       setError(err.message || 'Failed to create an account. Please try again.');
     }

@@ -20,7 +20,10 @@ export default function LoginPage({ onNavigate }) {
 
   const handleError = (err) => {
     console.error(err);
-    if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+    const apiError = err.response?.data?.message;
+    if (apiError) {
+      setError(apiError);
+    } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
       setError('Invalid email or password.');
     } else if (err.code === 'auth/account-exists-with-different-credential') {
       setError('An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address.');
@@ -28,6 +31,8 @@ export default function LoginPage({ onNavigate }) {
       setError('This domain is not authorized in Firebase Console. Add student-community-website-ui.onrender.com to Firebase Console > Authentication > Settings > Authorized domains.');
     } else if (err.code === 'auth/popup-closed-by-user') {
       setError('Google sign-in popup was closed before completing.');
+    } else if (err.message === 'Network Error' || err.code === 'ERR_NETWORK') {
+      setError('Unable to reach the backend API. Please make sure the backend service on Render is active.');
     } else {
       setError(err.message || 'Failed to sign in. Please try again.');
     }
