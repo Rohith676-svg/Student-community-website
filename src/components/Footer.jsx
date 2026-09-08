@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import './Footer.css';
 
-const AUTHOR_NAME = 'Built by Rohith';
+const AUTHOR_NAME = 'Built by Rohith Joseph';
 Object.freeze(AUTHOR_NAME);
 
 export default function Footer({ onNavigate }) {
