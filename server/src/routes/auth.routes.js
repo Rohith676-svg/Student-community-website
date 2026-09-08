@@ -72,20 +72,42 @@ router.post('/profile', requireAuth, async (req, res) => {
     const userRef = db.collection('users').doc(uid);
     const userDoc = await userRef.get();
 
+    // Normalize and trim optional rollNumber
+    const cleanRoll = rollNumber !== undefined 
+      ? (rollNumber && String(rollNumber).trim() !== '' ? String(rollNumber).trim().toUpperCase() : null)
+      : undefined;
+
+    // Check for duplicate roll number across other users
+    if (cleanRoll) {
+      const existingRollSnap = await db.collection('users')
+        .where('rollNumber', '==', cleanRoll)
+        .limit(2)
+        .get();
+      
+      const duplicate = existingRollSnap.docs.find(d => d.id !== uid);
+      if (duplicate) {
+        return res.status(409).json({
+          success: false,
+          message: 'This roll number is already registered with another student account.'
+        });
+      }
+    }
+
     let profileData = {};
 
     if (!userDoc.exists) {
       // Create new profile (usually from email/password registration)
       profileData = {
         uid,
-        email: email || '',
-        displayName: displayName || name || '',
+        email: email ? String(email).trim().toLowerCase() : '',
+        displayName: displayName ? String(displayName).trim() : (name || ''),
         photoURL: picture || null,
         role: 'student', // Enforced securely
-        profileCompleted: true, // Assuming the reg form has these fields
-        rollNumber: rollNumber || null,
-        department: department || null,
-        year: year || null,
+        profileCompleted: !!(cleanRoll && department && year),
+        rollNumber: cleanRoll || null,
+        department: department ? String(department).trim() : null,
+        year: year ? String(year).trim() : null,
+        status: 'ACTIVE',
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -96,20 +118,26 @@ router.post('/profile', requireAuth, async (req, res) => {
         console.error('Failed to trigger welcome email in background:', err)
       );
     } else {
-      // Update existing profile (e.g. completing a Google profile)
+      const existing = userDoc.data();
+      const updatedRoll = cleanRoll !== undefined ? cleanRoll : (existing.rollNumber || null);
+      const updatedDept = department !== undefined ? (department ? String(department).trim() : null) : (existing.department || null);
+      const updatedYear = year !== undefined ? (year ? String(year).trim() : null) : (existing.year || null);
+      const updatedName = displayName !== undefined ? (displayName ? String(displayName).trim() : existing.displayName) : existing.displayName;
+
       profileData = {
-        displayName: displayName || userDoc.data().displayName,
-        rollNumber: rollNumber || userDoc.data().rollNumber,
-        department: department || userDoc.data().department,
-        year: year || userDoc.data().year,
-        profileCompleted: true, // Now completed
+        displayName: updatedName,
+        rollNumber: updatedRoll,
+        department: updatedDept,
+        year: updatedYear,
+        profileCompleted: !!(updatedDept && updatedYear),
         updatedAt: new Date()
       };
+
       // We NEVER update `role` from user input
       await userRef.update(profileData);
       
       // Merge with existing data for the response
-      profileData = { ...userDoc.data(), ...profileData };
+      profileData = { ...existing, ...profileData };
     }
 
     return res.status(200).json({

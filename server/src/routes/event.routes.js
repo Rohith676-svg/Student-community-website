@@ -147,14 +147,34 @@ router.get('/:eventId', async (req, res) => {
 router.post('/', requireAuth, requireRole(['admin', 'lead']), async (req, res) => {
   try {
     const data = req.body;
+    const title = (data.title || data.name || '').trim();
+    if (!title) {
+      return res.status(400).json({
+        success: false,
+        message: 'Event title or name is required'
+      });
+    }
+
+    const type = data.type || 'STC_EVENT';
+    const allowedTypes = ['STC_EVENT', 'INTERNAL_HACKATHON', 'EXTERNAL_HACKATHON'];
+    if (!allowedTypes.includes(type)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid event type. Allowed types: ${allowedTypes.join(', ')}`
+      });
+    }
+
     const eventId = data.id || `event-${Date.now()}`;
     const eventRef = db.collection('events').doc(eventId);
 
     const newEvent = {
       ...data,
       id: eventId,
+      title: title,
+      name: title,
+      type: type,
       capacity: (data.capacity && !isNaN(Number(data.capacity))) ? Number(data.capacity) : null,
-      status: data.status || 'DRAFT',
+      status: data.status ? String(data.status).toUpperCase() : 'DRAFT',
       registrationStatus: data.registrationStatus || 'OPEN',
       registrationCount: 0,
       createdBy: req.user.uid,
@@ -203,6 +223,10 @@ router.patch('/:eventId', requireAuth, requireRole(['admin', 'lead']), async (re
     delete updates.registrationCount;
     delete updates.createdBy;
 
+    if (updates.status) {
+      updates.status = String(updates.status).toUpperCase();
+    }
+
     await eventRef.update(updates);
     const updatedDoc = await eventRef.get();
 
@@ -221,7 +245,7 @@ router.patch('/:eventId', requireAuth, requireRole(['admin', 'lead']), async (re
 });
 
 // @route   PATCH /api/events/:eventId/status
-// @desc    Toggle or set publish status (PUBLISHED <-> UNPUBLISHED)
+// @desc    Toggle or set publish status (PUBLISHED <-> UNPUBLISHED, CANCELLED, COMPLETED, DRAFT)
 // @access  Private (Admin / Lead only)
 router.patch('/:eventId/status', requireAuth, requireRole(['admin', 'lead']), async (req, res) => {
   try {
@@ -236,9 +260,17 @@ router.patch('/:eventId/status', requireAuth, requireRole(['admin', 'lead']), as
       });
     }
 
+    const allowedStatuses = ['DRAFT', 'PUBLISHED', 'UNPUBLISHED', 'CANCELLED', 'COMPLETED'];
+    if (req.body.status && !allowedStatuses.includes(String(req.body.status).toUpperCase())) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid event status. Allowed statuses: ${allowedStatuses.join(', ')}`
+      });
+    }
+
     const currentStatus = eventDoc.data().status;
     const nextStatus = req.body.status 
-      ? req.body.status 
+      ? String(req.body.status).toUpperCase() 
       : (currentStatus === 'PUBLISHED' ? 'UNPUBLISHED' : 'PUBLISHED');
 
     await eventRef.update({
@@ -249,7 +281,12 @@ router.patch('/:eventId/status', requireAuth, requireRole(['admin', 'lead']), as
     return res.status(200).json({
       success: true,
       message: `Event status updated to ${nextStatus}`,
-      status: nextStatus
+      status: nextStatus,
+      event: {
+        id: eventId,
+        ...eventDoc.data(),
+        status: nextStatus
+      }
     });
   } catch (error) {
     console.error('Error changing event status:', error);
@@ -311,6 +348,7 @@ router.get('/:eventId/my-registration', requireAuth, async (req, res) => {
       return res.status(200).json({
         success: true,
         isRegistered: false,
+        registered: false,
         registration: null
       });
     }
@@ -318,6 +356,7 @@ router.get('/:eventId/my-registration', requireAuth, async (req, res) => {
     return res.status(200).json({
       success: true,
       isRegistered: true,
+      registered: true,
       registration: regDoc.data()
     });
   } catch (error) {

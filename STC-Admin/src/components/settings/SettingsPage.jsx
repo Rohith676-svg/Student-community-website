@@ -123,7 +123,7 @@ export default function SettingsPage({ onShowToast }) {
             </div>
             <div style={{ marginLeft: 'auto' }}>
               <span className="admin-badge admin-badge--published">
-                {user?.role || 'ADMIN'}
+                {user?.role || 'admin'}
               </span>
             </div>
           </div>

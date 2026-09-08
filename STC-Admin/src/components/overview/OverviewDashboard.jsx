@@ -11,19 +11,23 @@ import { MetricSkeleton, TableSkeleton } from '../common/LoadingSkeleton';
 export default function OverviewDashboard({ onNavigate }) {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const loadStats = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await statsService.getOverviewStats();
+      setStats(data);
+    } catch (err) {
+      console.error(err);
+      setError('Unable to retrieve operational statistics from the server.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    let isMounted = true;
-    async function loadStats() {
-      try {
-        const data = await statsService.getOverviewStats();
-        if (isMounted) setStats(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
     loadStats();
 
     const unsubRegs = registrationsService.subscribeRegistrations?.(() => {
@@ -34,7 +38,6 @@ export default function OverviewDashboard({ onNavigate }) {
     });
 
     return () => {
-      isMounted = false;
       if (unsubRegs) unsubRegs();
       if (unsubEvents) unsubEvents();
     };
@@ -81,6 +84,31 @@ export default function OverviewDashboard({ onNavigate }) {
           </button>
         </div>
       </div>
+
+      {error && (
+        <div
+          style={{
+            padding: '1rem',
+            backgroundColor: 'var(--admin-status-unpublished-bg)',
+            color: 'var(--admin-status-unpublished-text)',
+            border: '1px solid var(--admin-status-unpublished-border)',
+            borderRadius: 'var(--radius-xs)',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span>{error}</span>
+          <button
+            type="button"
+            className="admin-btn admin-btn--secondary admin-btn--sm"
+            onClick={loadStats}
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* 4 Core Summary Metric Cards */}
       <CommunityStats stats={stats} />

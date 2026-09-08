@@ -32,7 +32,7 @@ export default function RecentRegistrations({ registrations = [], onViewAll }) {
               </tr>
             </thead>
             <tbody>
-              {registrations.map((reg) => (
+              {(registrations || []).map((reg) => (
                 <tr key={reg.id}>
                   <td>
                     <div style={{ fontWeight: 500 }}>{reg.studentName}</div>

@@ -125,7 +125,7 @@ export default function AdminSidebar({ currentRoute, onNavigate, counts = {} }) 
           <div className="admin-sidebar__avatar">{user?.avatar || 'AD'}</div>
           <div className="admin-sidebar__user-info">
             <span className="admin-sidebar__user-name">{user?.name || 'Administrator'}</span>
-            <span className="admin-sidebar__user-role">{user?.role || 'ADMIN'}</span>
+            <span className="admin-sidebar__user-role">{user?.role || 'admin'}</span>
           </div>
         </div>
         <button

@@ -12,11 +12,21 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    // Retrieve the user's role from the Firestore users document.
+    // This is the canonical source of truth for authorization.
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
     function isAdminOrLead() {
       return isAuthenticated() && (
-        request.auth.token.role == 'admin' || 
-        request.auth.token.role == 'lead'
+        getUserRole() == 'admin' || 
+        getUserRole() == 'lead'
       );
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == 'admin';
     }
 
     // Events collection
@@ -47,6 +57,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdminOrLead();
       // Profile updates are mediated by the backend /api/auth/profile
+      // No client-side write is permitted — prevents role escalation
       allow write: if false;
     }
 

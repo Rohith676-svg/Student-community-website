@@ -32,16 +32,18 @@ export const membersService = {
   },
 
   /**
-   * Update member status
+   * Update member status (ACTIVE | INACTIVE | SUSPENDED)
    */
   async updateMemberStatus(id, newStatus) {
-    return { id, status: newStatus };
+    const res = await api.patch(`/admin/members/${id}/status`, { status: newStatus });
+    return res.data;
   },
 
   /**
-   * Delete member
+   * Delete member (Admin only)
    */
   async deleteMember(id) {
-    return true;
+    const res = await api.delete(`/admin/members/${id}`);
+    return res.data.success;
   },
 };

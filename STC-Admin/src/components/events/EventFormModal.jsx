@@ -158,20 +158,32 @@ export default function EventFormModal({
             Cancel
           </button>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              type="button"
-              className="admin-btn admin-btn--secondary admin-btn--sm"
-              onClick={() => handleSubmit('DRAFT')}
-            >
-              Save as Draft
-            </button>
-            <button
-              type="button"
-              className="admin-btn admin-btn--primary admin-btn--sm"
-              onClick={() => handleSubmit('PUBLISHED')}
-            >
-              Publish Event
-            </button>
+            {initialEvent ? (
+              <button
+                type="button"
+                className="admin-btn admin-btn--primary admin-btn--sm"
+                onClick={() => handleSubmit(formData.status)}
+              >
+                Save Changes
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="admin-btn admin-btn--secondary admin-btn--sm"
+                  onClick={() => handleSubmit('DRAFT')}
+                >
+                  Save as Draft
+                </button>
+                <button
+                  type="button"
+                  className="admin-btn admin-btn--primary admin-btn--sm"
+                  onClick={() => handleSubmit('PUBLISHED')}
+                >
+                  Publish Event
+                </button>
+              </>
+            )}
           </div>
         </div>
       }
@@ -534,6 +546,22 @@ export default function EventFormModal({
             </div>
           </>
         )}
+
+        <div className="admin-form-group" style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--admin-border)' }}>
+          <label className="admin-form-label" htmlFor="event-status">Event Lifecycle Status</label>
+          <select
+            id="event-status"
+            className="admin-form-select"
+            value={formData.status || 'DRAFT'}
+            onChange={(e) => handleChange('status', e.target.value)}
+          >
+            <option value="DRAFT">DRAFT (Hidden from students)</option>
+            <option value="PUBLISHED">PUBLISHED (Live on student site)</option>
+            <option value="UNPUBLISHED">UNPUBLISHED (Temporarily pulled)</option>
+            <option value="CANCELLED">CANCELLED (Event cancelled)</option>
+            <option value="COMPLETED">COMPLETED (Event concluded)</option>
+          </select>
+        </div>
       </form>
     </Modal>
   );

@@ -4,7 +4,8 @@ import {
   signInWithEmailAndPassword, 
   signInWithPopup, 
   signOut, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  sendPasswordResetEmail 
 } from 'firebase/auth';
 import { auth, googleProvider } from '../config/firebase';
 import api from '../services/api';
@@ -80,6 +81,23 @@ export function AuthProvider({ children }) {
     return null;
   };
 
+  // Reset password
+  const resetPassword = async (email) => {
+    if (!email || !email.trim()) {
+      throw new Error('Please enter your email address.');
+    }
+    return sendPasswordResetEmail(auth, email.trim());
+  };
+
+  // Update profile
+  const updateProfile = async (profileData) => {
+    const response = await api.post('/auth/profile', profileData);
+    if (response.data.success) {
+      setUserProfile(response.data.user);
+    }
+    return response.data;
+  };
+
   // Refresh user profile
   const refreshUserProfile = async () => {
     if (currentUser) {
@@ -109,6 +127,8 @@ export function AuthProvider({ children }) {
     register,
     loginWithGoogle,
     logout,
+    resetPassword,
+    updateProfile,
     getIdToken,
     refreshUserProfile
   };

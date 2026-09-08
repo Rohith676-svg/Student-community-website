@@ -15,7 +15,7 @@ import { registrationsService } from './services/registrationsService';
 import './admin.css';
 
 function AdminAppInner() {
-  const { isAuthenticated } = useAdminAuth();
+  const { isAuthenticated, authPhase, authError, logout } = useAdminAuth();
 
   // Hash-based routing for admin screens
   const getRouteFromHash = () => {
@@ -55,6 +55,7 @@ function AdminAppInner() {
 
   // Update badge counts
   useEffect(() => {
+    if (!isAuthenticated) return; // Don't load data if not authorized
     async function loadCounts() {
       try {
         const [m, e, r] = await Promise.all([
@@ -80,8 +81,55 @@ function AdminAppInner() {
       if (unsubEvents) unsubEvents();
       if (unsubRegs) unsubRegs();
     };
-  }, [currentRoute]);
+  }, [currentRoute, isAuthenticated]);
 
+  // --- Auth gating: do NOT render admin UI until role is verified ---
+
+  // Phase: checking — show loading, never flash the admin dashboard
+  if (authPhase === 'checking') {
+    return (
+      <div style={{
+        minHeight: '100vh', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        backgroundColor: 'var(--admin-bg)', color: 'var(--admin-text)',
+      }}>
+        <div style={{ fontSize: '1.125rem', fontWeight: 500 }}>Verifying administrator permissions…</div>
+      </div>
+    );
+  }
+
+  // Phase: denied — authenticated user is NOT an admin
+  if (authPhase === 'denied') {
+    return (
+      <div style={{
+        minHeight: '100vh', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', gap: '1rem',
+        backgroundColor: 'var(--admin-bg)', color: 'var(--admin-text)',
+      }}>
+        <div style={{
+          padding: '2rem', maxWidth: '400px', textAlign: 'center',
+          backgroundColor: 'var(--admin-surface)', border: '1px solid var(--admin-border)',
+          borderRadius: 'var(--radius-sm)',
+        }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.75rem', color: '#e53e3e' }}>
+            Access Denied
+          </h2>
+          <p style={{ fontSize: '0.875rem', color: 'var(--admin-muted)', marginBottom: '1rem' }}>
+            {authError || 'Your account does not have administrator privileges.'}
+          </p>
+          <button
+            className="admin-btn admin-btn--primary"
+            style={{ width: '100%' }}
+            onClick={() => logout()}
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Phase: idle (not authenticated) — show login
   if (!isAuthenticated) {
     return <AdminLoginView />;
   }

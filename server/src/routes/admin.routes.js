@@ -207,7 +207,7 @@ router.get('/members', requireAuth, requireRole(['admin', 'lead']), async (req, 
         department: data.department || 'OTHER',
         year: data.year || '1',
         role: data.role || 'student',
-        status: data.status || 'ACTIVE',
+        status: data.status ? String(data.status).toUpperCase() : 'ACTIVE',
         profileCompleted: data.profileCompleted || false,
         joinedAt: data.createdAt ? (data.createdAt.toDate ? data.createdAt.toDate().toISOString() : data.createdAt) : new Date().toISOString()
       });
@@ -241,6 +241,87 @@ router.get('/members', requireAuth, requireRole(['admin', 'lead']), async (req, 
     return res.status(500).json({
       success: false,
       message: 'Internal server error fetching community members'
+    });
+  }
+});
+
+// @route   PATCH /api/admin/members/:id/status
+// @desc    Update a member's status (ACTIVE | INACTIVE | SUSPENDED)
+// @access  Private (Admin / Lead)
+router.patch('/members/:id/status', requireAuth, requireRole(['admin', 'lead']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const allowedStatuses = ['ACTIVE', 'INACTIVE', 'SUSPENDED'];
+    if (!status || !allowedStatuses.includes(String(status).toUpperCase())) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status. Allowed values: ${allowedStatuses.join(', ')}`
+      });
+    }
+
+    const normalizedStatus = String(status).toUpperCase();
+    const userRef = db.collection('users').doc(id);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({
+        success: false,
+        message: 'Member not found'
+      });
+    }
+
+    await userRef.update({
+      status: normalizedStatus,
+      updatedAt: new Date().toISOString()
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Member status updated to ${normalizedStatus}`,
+      member: {
+        id,
+        ...userDoc.data(),
+        status: normalizedStatus
+      }
+    });
+  } catch (error) {
+    console.error('Error updating member status:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error updating member status'
+    });
+  }
+});
+
+// @route   DELETE /api/admin/members/:id
+// @desc    Delete a member (Admin only)
+// @access  Private (Admin only)
+router.delete('/members/:id', requireAuth, requireRole(['admin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userRef = db.collection('users').doc(id);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({
+        success: false,
+        message: 'Member not found'
+      });
+    }
+
+    await userRef.delete();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Member deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting member:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error deleting member'
     });
   }
 });

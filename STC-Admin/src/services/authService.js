@@ -1,64 +1,60 @@
 import { adminAuth as auth } from '../../../src/config/firebase';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from 'firebase/auth';
+import api from '../../../src/services/api';
 
 const AUTH_STORAGE_KEY = 'stc_admin_auth_state';
 const RETURN_CONTEXT_KEY = 'stc_auth_return_context';
-
-const DEFAULT_ADMIN_USER = {
-  id: 'admin-01',
-  name: 'STC Administrator',
-  email: 'admin@stc.edu',
-  role: 'ADMIN',
-  avatar: 'SA',
-};
 
 export const authService = {
   /**
    * Check if current session is authenticated as admin
    */
   isAuthenticated() {
-    if (auth.currentUser) return true;
-    try {
-      const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-      return stored === 'true';
-    } catch {
-      return false;
-    }
+    return !!auth.currentUser;
   },
 
   /**
-   * Ensure admin session has a valid Firebase Auth user for ID tokens
-   */
-  async ensureFirebaseAuth() {
-    if (auth.currentUser) return auth.currentUser;
-    try {
-      const cred = await signInWithEmailAndPassword(auth, 'admin@stc.edu', 'admin123');
-      localStorage.setItem(AUTH_STORAGE_KEY, 'true');
-      return cred.user;
-    } catch (e) {
-      console.warn('Auto-auth fallback error:', e.message);
-      return null;
-    }
-  },
-
-  /**
-   * Get current authenticated administrator profile
+   * Get current authenticated administrator profile from Firebase Auth state.
+   * Returns null if no user is signed in.
    */
   getCurrentUser() {
     if (auth.currentUser) {
       return {
         id: auth.currentUser.uid,
-        name: auth.currentUser.displayName || 'STC Administrator',
+        name: auth.currentUser.displayName || 'Administrator',
         email: auth.currentUser.email,
-        role: 'ADMIN',
-        avatar: (auth.currentUser.displayName || 'SA').substring(0, 2).toUpperCase()
+        role: null, // Role must be verified via backend, never assumed
+        avatar: (auth.currentUser.displayName || 'AD').substring(0, 2).toUpperCase()
       };
     }
-    return DEFAULT_ADMIN_USER;
+    return null;
   },
 
   /**
-   * Real login with Firebase Auth
+   * Verify the current user's role by calling the backend.
+   * Returns the Firestore role string ('admin', 'lead', 'student') or null.
+   */
+  async verifyAdminRole(fbUser = null) {
+    try {
+      const targetUser = fbUser || auth.currentUser;
+      const headers = {};
+      if (targetUser) {
+        const token = await targetUser.getIdToken();
+        headers.Authorization = `Bearer ${token}`;
+      }
+      const res = await api.get('/auth/me', { headers });
+      if (res.data.success && res.data.user) {
+        return (res.data.user.role || 'student').toLowerCase();
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to verify admin role:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Real login with Firebase Auth — requires explicit user-entered credentials
    */
   async login(email, password) {
     try {
@@ -66,10 +62,10 @@ export const authService = {
       localStorage.setItem(AUTH_STORAGE_KEY, 'true');
       return {
         id: cred.user.uid,
-        name: cred.user.displayName || 'STC Administrator',
+        name: cred.user.displayName || 'Administrator',
         email: cred.user.email,
-        role: 'ADMIN',
-        avatar: (cred.user.displayName || 'SA').substring(0, 2).toUpperCase()
+        role: null, // Must be verified separately via verifyAdminRole()
+        avatar: (cred.user.displayName || 'AD').substring(0, 2).toUpperCase()
       };
     } catch (firebaseErr) {
       console.error('Admin login error:', firebaseErr);
@@ -84,15 +80,26 @@ export const authService = {
   },
 
   /**
-   * Real logout
+   * Real logout — clears Firebase Auth session and local storage flag
    */
   async logout() {
     try {
       await signOut(auth);
     } catch (e) {
-      // Ignore
+      // Ignore sign-out errors
     }
-    localStorage.setItem(AUTH_STORAGE_KEY, 'false');
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    return true;
+  },
+
+  /**
+   * Send password reset email
+   */
+  async resetPassword(email) {
+    if (!email || !email.trim()) {
+      throw new Error('Please enter your administrator email address.');
+    }
+    await sendPasswordResetEmail(auth, email.trim());
     return true;
   },
 

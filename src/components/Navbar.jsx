@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../context/AuthContext';
+import ThemeToggle from './ThemeToggle';
+import ProfileModal from './profile/ProfileModal';
 import './Navbar.css';
 
 export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'light', onToggleTheme }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const { currentUser, userProfile, logout } = useAuth();
 
   useEffect(() => {
@@ -107,10 +109,28 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
           <div className="navbar__desktop-actions">
             <ThemeToggle theme={theme} onToggle={onToggleTheme} />
             {currentUser ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>
-                  {userProfile?.displayName || currentUser.displayName || currentUser.email}
-                </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsProfileModalOpen(true)}
+                  style={{
+                    background: 'none',
+                    border: '1px solid var(--stc-border)',
+                    borderRadius: '4px',
+                    padding: '0.375rem 0.75rem',
+                    color: 'var(--stc-text-primary)',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem'
+                  }}
+                  title="View and edit your profile"
+                >
+                  <span>{userProfile?.displayName || currentUser.displayName || currentUser.email}</span>
+                  <span style={{ fontSize: '11px', opacity: 0.7 }}>✏️</span>
+                </button>
                 <button
                   onClick={async () => {
                     await logout();
@@ -136,6 +156,7 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
                   href="#/register"
                   onClick={(e) => handleLinkClick(e, 'register')}
                   className="btn btn-primary navbar__cta"
+                  style={{ background: 'var(--stc-primary)', color: '#fff' }}
                 >
                   Sign Up
                 </a>
@@ -168,7 +189,7 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
             <li>
               <a
                 href="#/"
-                className={`navbar__mobile-link ${currentRoute === 'home' ? 'navbar__link--active' : ''}`}
+                className={`navbar__mobile-link ${currentRoute === 'home' ? 'navbar__mobile-link--active' : ''}`}
                 onClick={(e) => handleLinkClick(e, 'home')}
               >
                 Home
@@ -203,16 +224,29 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
             </li>
           </ul>
           {currentUser ? (
-            <button
-              className="btn btn-primary navbar__mobile-cta"
-              onClick={async () => {
-                await logout();
-                closeMobileMenu();
-                onNavigate('home');
-              }}
-            >
-              Logout
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '1rem' }}>
+              <button
+                type="button"
+                className="btn btn-primary navbar__mobile-cta"
+                style={{ background: 'transparent', border: '1px solid var(--stc-border)', color: 'var(--stc-text-primary)' }}
+                onClick={() => {
+                  closeMobileMenu();
+                  setIsProfileModalOpen(true);
+                }}
+              >
+                Profile ({userProfile?.displayName || currentUser.displayName || currentUser.email})
+              </button>
+              <button
+                className="btn btn-primary navbar__mobile-cta"
+                onClick={async () => {
+                  await logout();
+                  closeMobileMenu();
+                  onNavigate('home');
+                }}
+              >
+                Logout
+              </button>
+            </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '1rem' }}>
               <a
@@ -234,6 +268,11 @@ export default function Navbar({ currentRoute = 'home', onNavigate, theme = 'lig
           )}
         </nav>
       </div>
+
+      <ProfileModal 
+        isOpen={isProfileModalOpen} 
+        onClose={() => setIsProfileModalOpen(false)} 
+      />
     </header>
   );
 }

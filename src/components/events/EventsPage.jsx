@@ -109,7 +109,7 @@ export default function EventsPage({ onNavigate }) {
     liveEvents.forEach(async (ev) => {
       try {
         const res = await api.get(`/events/${ev.id}/my-registration`);
-        if (res.data?.registered && res.data?.registration) {
+        if ((res.data?.isRegistered || res.data?.registered) && res.data?.registration) {
           setUserRegistrations((prev) => ({ ...prev, [ev.id]: res.data.registration }));
         }
       } catch (e) {
@@ -343,7 +343,10 @@ export default function EventsPage({ onNavigate }) {
               .map((ev, idx) => {
                 const isRegistered = !!userRegistrations[ev.id];
                 const isClosed = ev.registrationStatus === 'CLOSED';
-                const isFull = ev.capacity && ev.registrationCount >= ev.capacity;
+                const isDeadlinePassed = ev.registrationDeadline && new Date(ev.registrationDeadline) < new Date();
+                const isCancelled = ev.status === 'CANCELLED';
+                const isCompleted = ev.status === 'COMPLETED';
+                const isFull = Number(ev.capacity) > 0 && Number(ev.registrationCount || 0) >= Number(ev.capacity);
                 const isTBA = (ev.date === 'TBA' || ev.date === 'TO BE ANNOUNCED') && ev.registrationStatus !== 'OPEN';
 
                 return (
@@ -404,7 +407,15 @@ export default function EventsPage({ onNavigate }) {
                             >
                               REGISTERED ✓
                             </span>
-                          ) : isClosed ? (
+                          ) : isCancelled ? (
+                            <span className="inauguration-pill label-mono" role="status">
+                              EVENT CANCELLED
+                            </span>
+                          ) : isCompleted ? (
+                            <span className="inauguration-pill label-mono" role="status">
+                              EVENT CONCLUDED
+                            </span>
+                          ) : (isClosed || isDeadlinePassed) ? (
                             <span className="inauguration-pill label-mono" role="status">
                               REGISTRATION CLOSED
                             </span>
